@@ -1,0 +1,20 @@
+[
+    {
+      "id": 1,
+      "nombre": "Taladro",
+      "descripcion": "Taladro potente para paredes de hormigón.",
+      "categoria": "Herramientas",
+      "cp": "08001",
+      "estado": "disponible",
+      "imagen": "https://url-de-tu-imagen.webp"
+    },
+    {
+      "id": 2,
+      "nombre": "Bicicleta",
+      "descripcion": "Ideal para dar una vuelta por el puerto.",
+      "categoria": "Transporte",
+      "cp": "08003",
+      "estado": "prestado",
+      "imagen": "https://url-de-tu-imagen2.webp"
+    }
+  ]
