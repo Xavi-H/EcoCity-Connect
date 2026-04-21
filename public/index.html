@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EcoCity Connect</title>
+    <script src="components.js"></script>
 </head>
-<body>
-    <h1>EcoCity Connect</h1>
-    <button onclick="getObjects()">Veure objectes en consola</button>
+    <body>
+        <button onclick="getObjects()">Veure objectes en consola</button>
 
-    <script>
-        async function getObjects() {
-            const respuesta = await fetch('/api/objects'); // Crida al servidor
-            const datos = await respuesta.json();         // Convierte a objeto JS
-            console.log("Datos recibidos del server:", datos);
-            alert("He recibido " + datos.length + " objetos. Mira la consola (F12)");
-        }
-    </script>
-</body>
+        <script>
+            async function getObjects() {
+                const respuesta = await fetch('/api/objects'); // Crida al servidor
+                const datos = await respuesta.json();         // Convierte a objeto JS
+                console.log("Datos recibidos del server:", datos);
+                alert("He recibido " + datos.length + " objetos. Mira la consola (F12)");
+            }
+        </script>
+    </body>
 </html>
