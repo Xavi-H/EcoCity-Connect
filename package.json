@@ -3,12 +3,17 @@
   "version": "1.0.0",
   "description": "Projecte Final de Curs",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon index.js"
   },
   "author": "Xavi Hurtado Picón",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^2.2.2",
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
