@@ -1,0 +1,24 @@
+GET http://localhost:3000/
+
+###
+GET http://localhost:3000/api/objects
+
+###
+GET http://localhost:3000/api/objects/1
+
+###
+GET http://localhost:3000/api/objects/Eines
+
+###
+POST http://localhost:3000/api/objects HTTP/1.1
+Content-Type: application/json
+
+{
+    "nom": "Nou Objecte",
+    "descripcio": "Descripcio del nou objecte",
+    "categoria": "Categoria",
+    "cp": "08000",
+    "estat": "disponible",
+    "imatge": ""
+}
+}

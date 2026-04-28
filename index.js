@@ -87,6 +87,33 @@ app.get('/api/objects/:id', (req, res) => {
   res.json(item); // Retorna un objecte
 });
 
+// GET objecte per categoria
+app.get('/api/objects/:categoria', (req, res) => {
+  const data = readData();
+  const categoria = req.params.categoria; // Valor rebut per url
+  const items = data.objectes.filter(i => i.categoria == categoria);
+  if (items.length === 0) {
+    return res.status(404).json({ error: 'No hi ha cap objecte' });
+  }
+  res.json(items);
+});
+
+// POST per afegir un objecte nou
+app.post('/api/objects', function(req, res) {
+    const data = readData();
+    const nouObjecte = req.body; // Rep l'enviat pel formulari
+    
+    // S'assigna un ID nou automàtic
+    nouObjecte.id = data.objectes.length + 1;
+    data.objectes.push(nouObjecte);
+    
+    // Guarda al fitxer JSON
+    fs.writeFileSync('./objects.json', JSON.stringify(data, null, 2)); // 
+    
+    res.status(201).json(nouObjecte);
+});
+
+
 app.listen(PORT, function() {
-    console.log("Servidor EcoCity Connect vivo en: http://localhost:" + PORT);
+    console.log("Servidor EcoCity Connect viu en: http://localhost:" + PORT);
 });
