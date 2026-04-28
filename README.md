@@ -19,11 +19,13 @@ Verás que aparece una carpeta node_modules. No la toques, ahí vive Express.
 
 // > npm init -y (crear package.json)
 // Crear arxiu main (index.js)
+
 // > npm install express (instal·lar dependències - node_modules) per reinstalar: npm install
 // "type": "module" en el package.json
 // Arrencar projecte: > node index.js
 // > npm install -D nodemon (instal·lar nodemon per reiniciar el servidor automàticament quan es fan canvis al codi)
 // "dev": "nodemon index.js" en el package.json (Scripts)
+
 // > npm run dev (arrencar el servidor amb nodemon)
 // Començar a programar endpoints
 // > npm install body-parser (instal·lar body-parser per entendre que estem rebent un json des de la petició post)
