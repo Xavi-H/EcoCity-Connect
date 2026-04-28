@@ -1,20 +1,121 @@
-[
+{
+  "objectes": [
     {
       "id": 1,
-      "nombre": "Taladro",
-      "descripcion": "Taladro potente para paredes de hormigón.",
-      "categoria": "Herramientas",
+      "nom": "Taladro",
+      "descripcio": "Taladro potent.",
+      "categoria": "Eines",
       "cp": "08001",
-      "estado": "disponible",
-      "imagen": "https://url-de-tu-imagen.webp"
+      "estat": "disponible",
+      "imatge": ""
     },
     {
       "id": 2,
-      "nombre": "Bicicleta",
-      "descripcion": "Ideal para dar una vuelta por el puerto.",
-      "categoria": "Transporte",
+      "nom": "Bicicleta",
+      "descripcio": "Ideal per a fer una volta pel port.",
+      "categoria": "Transport",
       "cp": "08003",
-      "estado": "prestado",
-      "imagen": "https://url-de-tu-imagen2.webp"
+      "estat": "prestat",
+      "imatge": ""
+    },
+    {
+      "id": 3,
+      "nom": "Escala plegable",
+      "descripcio": "Escala d'alumini de 5 esglaons, lleugera i fàcil de guardar.",
+      "categoria": "Eines",
+      "cp": "08012",
+      "estat": "disponible",
+      "imatge": ""
+    },
+      {
+      "id": 4,
+      "nom": "Projector",
+      "descripcio": "Projector HD ideal per a cinema a casa o presentacions.",
+      "categoria": "Electrònica",
+      "cp": "08005",
+      "estat": "disponible",
+      "imatge": ""
+    },
+      {
+      "id": 5,
+      "nom": "Carret de la compra",
+      "descripcio": "Carret amb rodes per transportar compres pesades.",
+      "categoria": "Llar",
+      "cp": "08024",
+      "estat": "prestat",
+      "imatge": ""
+    },
+      {
+      "id": 6,
+      "nom": "Tenda de campanya",
+      "descripcio": "Tenda per a 3 persones, fàcil de muntar.",
+      "categoria": "Outdoor",
+      "cp": "08016",
+      "estat": "disponible",
+      "imatge": ""
+    },
+      {
+      "id": 7,
+      "nom": "Tallagespa elèctric",
+      "descripcio": "Tallagespa per jardins petits i mitjans.",
+      "categoria": "Jardineria",
+      "cp": "08017",
+      "estat": "disponible",
+      "imatge": ""
+    },
+      {
+      "id": 8,
+      "nom": "Cadira plegable",
+      "descripcio": "Cadira còmoda per a convidats.",
+      "categoria": "Mobles",
+      "cp": "08009",
+      "estat": "disponible",
+      "imatge": ""
+    },
+      {
+      "id": 9,
+      "nom": "Maleta gran",
+      "descripcio": "Maleta rígida ideal per a viatges llargs.",
+      "categoria": "Viatge",
+      "cp": "08021",
+      "estat": "prestat",
+      "imatge": ""
+    },
+      {
+      "id": 10,
+      "nom": "Cadires de càmping",
+      "descripcio": "Pack de 2 cadires plegables per exterior.",
+      "categoria": "Outdoor",
+      "cp": "08022",
+      "estat": "disponible",
+      "imatge": ""
+    },
+      {
+      "id": 11,
+      "nom": "Barbacoa portàtil",
+      "descripcio": "Barbacoa compacta per a terrassa o excursions.",
+      "categoria": "Cuina",
+      "cp": "08019",
+      "estat": "disponible",
+      "imatge": ""
+    },
+      {
+      "id": 12,
+      "nom": "Màquina de cosir",
+      "descripcio": "Màquina elèctrica per a reparacions i projectes tèxtils.",
+      "categoria": "Llar",
+      "cp": "08010",
+      "estat": "disponible",
+      "imatge": ""
+    },
+      {
+      "id": 13,
+      "nom": "Nevera portàtil",
+      "descripcio": "Nevera per mantenir begudes i menjar fresc.",
+      "categoria": "Outdoor",
+      "cp": "08026",
+      "estat": "prestat",
+      "imatge": ""
     }
   ]
+}

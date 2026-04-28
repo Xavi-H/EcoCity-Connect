@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Projecte Final de Curs",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "dev": "nodemon index.js"
   },
@@ -11,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^2.2.2",
-    "express": "^5.2.1"
+    "express": "^4.17.1",
+    "serve": "^14.2.6"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

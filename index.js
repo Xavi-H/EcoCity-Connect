@@ -1,4 +1,4 @@
-import express from "express";
+/*import express from "express";
 import fs from "fs"; // Treballar amb arxius
 import bodyParser from "body-parser"; //Ho afegim per entendre que estem rebent un json des de la petició post.
 import path from "path"; // Manejar rutas de carpetas
@@ -36,9 +36,57 @@ APP.get('/api/objects', (req, res) => {
     res.json(DATA);
 });
 
-
-
 // El servidor escolta el port que rep com a parametre
 APP.listen(PORT, () => {
     console.log(`Servidor de EcoCity Connect funcionant en http://localhost:${PORT}`);
+});
+*/
+
+// Usamos 'require' en lugar de 'import' (CommonJS es más compatible)
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+
+const app = express(); // Cambiado a minúsculas por convención
+const PORT = 3000;
+
+// Configuración básica compatible
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Función para leer el JSON
+function readData() {
+    try {
+        const data = fs.readFileSync("./objects.json", "utf8");
+        return JSON.parse(data);
+    } catch (error) {
+        console.error("Error leyendo JSON:", error.message);
+        return [];
+    }
+}
+
+// RUTA RAIZ: Envía el index.html
+app.get('/', function(req, res) {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// RUTA API: Devuelve los objetos
+app.get('/api/objects', function(req, res) {
+    const data = readData();
+    res.json(data);
+});
+
+// GET objecte per id
+app.get('/api/objects/:id', (req, res) => {
+  const data = readData();
+  const id = parseInt(req.params.id); // Objecte req té l'arguments params que permet accedir als parametres de la url
+  const item = data.objectes.find(i => i.id == id);
+  if (!item) {
+    return res.status(404).json({ error: 'No encontrado' });
+  }
+  res.json(item); // Retorna un objecte
+});
+
+app.listen(PORT, function() {
+    console.log("Servidor EcoCity Connect vivo en: http://localhost:" + PORT);
 });
