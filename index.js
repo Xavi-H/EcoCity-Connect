@@ -1,4 +1,4 @@
-/*import express from "express";
+import express from "express";
 import fs from "fs"; // Treballar amb arxius
 import bodyParser from "body-parser"; //Ho afegim per entendre que estem rebent un json des de la petició post.
 import path from "path"; // Manejar rutas de carpetas
@@ -40,9 +40,10 @@ APP.get('/api/objects', (req, res) => {
 APP.listen(PORT, () => {
     console.log(`Servidor de EcoCity Connect funcionant en http://localhost:${PORT}`);
 });
-*/
+
 
 // Usamos 'require' en lugar de 'import' (CommonJS es más compatible)
+/*
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -117,3 +118,4 @@ app.post('/api/objects', function(req, res) {
 app.listen(PORT, function() {
     console.log("Servidor EcoCity Connect viu en: http://localhost:" + PORT);
 });
+*/
