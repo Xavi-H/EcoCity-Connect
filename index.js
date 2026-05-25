@@ -42,7 +42,11 @@ APP.listen(PORT, () => {
 });
 
 
-// Usamos 'require' en lugar de 'import' (CommonJS es más compatible)
+
+
+
+
+// VERSION ANTIGUA PARA EL PC DE CLASE Usamos 'require' en lugar de 'import' (CommonJS es más compatible)
 /*
 const express = require('express');
 const fs = require('fs');

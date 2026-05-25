@@ -1,36 +1,33 @@
-// db/database.js
-const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs');
-const path = require('path');
+import { open } from 'sqlite';
+import sqlite3 from 'sqlite3';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Donde se guarda el archivo de la BD
+// Configuración para emular __dirname en ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const dbPath = path.join(__dirname, 'ecocity.db');
-const dbInitPath = path.join(__dirname, 'db_init.sql');
+const dbInitPath = path.join(__dirname, 'schema.sql');
 
-// Conecta a la base de datos (si no existe, SQLite la crea automáticamente)
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error al conectar a SQLite:', err.message);
-    } else {
-        console.log('Conectado con éxito a la base de datos SQLite.');
-        
-        // Inicialización automática: si está vacía, cargamos el db_init.sql
-        db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='objects'", (err, table) => {
-            if (!table) {
-                console.log("Base de datos vacía. Ahora se crean las tablas");
-                const sqlInit = fs.readFileSync(dbInitPath, 'utf8');
-                
-                // db.exec ejecuta las sentencias SQL
-                db.exec(sqlInit, (err) => {
-                    if (err) {
-                        console.error("Error al ejecutar el archivo db_init.sql:", err.message);
-                    } else {
-                        console.log("Tablas creadas e inserts iniciales completados con éxito.");
-                    }
-                });
-            }
-        });
-    }
+// Abrir la conexión con soporte para Promesas (async/await)
+const db = await open({
+    filename: dbPath,
+    driver: sqlite3.Database
 });
 
-module.exports = db;
+// Inicialización automática
+try {
+    const taulaExisteix = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='objects'");
+    if (!taulaExisteix) {
+        console.log("Configurant taules inicials des de db_init.sql...");
+        const sqlInit = fs.readFileSync(dbInitPath, 'utf8');
+        await db.exec(sqlInit);
+        console.log("Base de dades inicialitzada amb èxit.");
+    }
+} catch (error) {
+    console.error("Error inicialitzant la base de dades:", error.message);
+}
+
+export default db;

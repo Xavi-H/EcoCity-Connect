@@ -29,7 +29,7 @@ Verás que aparece una carpeta node_modules. No la toques, ahí vive Express.
 // > npm run dev (arrencar el servidor amb nodemon)
 // Començar a programar endpoints
 // > npm install body-parser (instal·lar body-parser per entendre que estem rebent un json des de la petició post)
-
+// > npm install sqlite3 
 
 
 // TEORIA
