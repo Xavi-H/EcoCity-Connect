@@ -81,6 +81,18 @@ APP.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// GET /api/categories — llista de categories úniques existents a la BD
+APP.get('/api/categories', async (req, res) => {
+    try {
+        const rows = await ObjectModel.getAll();
+        const categories = [...new Set(rows.map(o => o.categoria))].filter(Boolean).sort();
+        res.json(categories);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
 // GET /api/objects → Obtener todos los objetos
 // Es pot filtrar per categoria: GET /api/objects?categoria=Eines
 APP.get('/api/objects', async (req, res) => {
