@@ -31,7 +31,8 @@
                 <textarea id="crear-descripcio" placeholder="Descriu l'objecte: estat, mida, ús recomanat…" rows="3"></textarea>
 
                 <label for="crear-categoria">Categoria *</label>
-                <input type="text" id="crear-categoria" placeholder="Ex: Eines, Electronica, Llar…" required>
+                <select id="crear-categoria" required></select>
+                <input type="text" id="crear-categoria-nova" placeholder="Escriu la nova categoria..." style="display:none; margin-top:.3rem;" required>
 
                 <label for="crear-cp">Codi Postal *</label>
                 <input type="text" id="crear-cp" placeholder="Ex: 08001" maxlength="5" required>
@@ -86,7 +87,44 @@ async function inicialitzar() {
 }
 
 // Previsualització de la imatge en temps real
-document.addEventListener('DOMContentLoaded', () => {
+// Categories dinàmiques
+async function carregarSelectCategoria() {
+    const sel = document.getElementById('crear-categoria');
+    const nova = document.getElementById('crear-categoria-nova');
+    try {
+        const cats = await fetch('/api/categories').then(r => r.json());
+        sel.innerHTML = '';
+        cats.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat; opt.textContent = cat;
+            sel.appendChild(opt);
+        });
+    } catch {
+        sel.innerHTML = '';
+    }
+    // Opció per escriure una categoria nova
+    const optAltra = document.createElement('option');
+    optAltra.value = '__altra__'; optAltra.textContent = '+ Altra categoria...';
+    sel.appendChild(optAltra);
+
+    sel.addEventListener('change', () => {
+        const isAltra = sel.value === '__altra__';
+        nova.style.display = isAltra ? 'block' : 'none';
+        nova.required = isAltra;
+        if (isAltra) nova.focus();
+    });
+}
+
+function obtenirCategoria() {
+    const sel = document.getElementById('crear-categoria');
+    if (sel.value === '__altra__') {
+        return document.getElementById('crear-categoria-nova').value.trim();
+    }
+    return sel.value.trim();
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await carregarSelectCategoria();
     inicialitzar();
 
     document.getElementById('crear-imatge').addEventListener('input', function () {
@@ -118,15 +156,15 @@ document.addEventListener('DOMContentLoaded', () => {
         okEl.style.display  = 'none';
 
         const body = {
-            nom:        document.getElementById('crear-nom').value.trim(),
+            nom: document.getElementById('crear-nom').value.trim(),
             descripcio: document.getElementById('crear-descripcio').value.trim(),
-            categoria:  document.getElementById('crear-categoria').value.trim(),
-            cp:         document.getElementById('crear-cp').value.trim(),
-            estat:      document.getElementById('crear-estat').value,
-            imatge:     document.getElementById('crear-imatge').value.trim()
+            categoria: obtenirCategoria(),
+            cp: document.getElementById('crear-cp').value.trim(),
+            estat: document.getElementById('crear-estat').value,
+            imatge: document.getElementById('crear-imatge').value.trim()
         };
 
-        const res  = await fetch('/api/objects', {
+        const res = await fetch('/api/objects', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)

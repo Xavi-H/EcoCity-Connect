@@ -23,6 +23,9 @@
             <option value="prestat">Prestat</option>
         </select>
 
+        <label for="filtre-cp">Codi Postal:</label>
+        <input type="text" id="filtre-cp" placeholder="Ex: 08001" maxlength="5" style="width:7rem;">
+
         <label for="filtre-cerca">Cercar:</label>
         <input type="text" id="filtre-cerca" placeholder="Nom o descripció...">
         <button id="btn-netejar-filtres">Netejar</button>
@@ -41,7 +44,9 @@
             <input type="hidden" id="edit-id">
             <label>Nom *</label><input type="text" id="edit-nom" required>
             <label>Descripció</label><textarea id="edit-descripcio" rows="2"></textarea>
-            <label>Categoria *</label><input type="text" id="edit-categoria" required>
+            <label>Categoria *</label>
+            <select id="edit-categoria" required></select>
+            <input type="text" id="edit-categoria-nova" placeholder="Nova categoria..." style="display:none; margin-top:.3rem;">
             <label>CP *</label><input type="text" id="edit-cp" maxlength="5" required>
             <label>Estat</label>
             <select id="edit-estat">
@@ -121,9 +126,8 @@ function renderitzarObjectes(llista) {
                 <p><strong>Categoria:</strong> ${obj.categoria} &nbsp;|&nbsp; <strong>CP:</strong> ${obj.cp}</p>
                 <p class="estat estat-${obj.estat}">${obj.estat.toUpperCase()}</p>
                 <div class="card-accions">
-                    <a href="detallsProducte.html?id=${obj.id}" class="btn-detalls">🔍 Veure detalls</a>
                     ${esMeu
-                        ? `<button class="btn-editar"   data-id="${obj.id}">✏️ Editar</button>
+                        ? `<button class="btn-editar" data-id="${obj.id}">✏️ Editar</button>
                            <button class="btn-eliminar" data-id="${obj.id}">🗑️ Eliminar</button>`
                         : `<button class="btn-sol-licitar" data-id="${obj.id}" data-nom="${obj.nom}" ${obj.estat !== 'disponible' ? 'disabled' : ''}>📩 Sol·licitar</button>`
                     }
@@ -131,7 +135,7 @@ function renderitzarObjectes(llista) {
             </div>`;
 
         if (esMeu) {
-            card.querySelector('.btn-editar').addEventListener('click',   () => obrirModal(obj.id));
+            card.querySelector('.btn-editar').addEventListener('click', () => obrirModal(obj.id));
             card.querySelector('.btn-eliminar').addEventListener('click', () => eliminar(obj.id, obj.nom));
         } else {
             card.querySelector('.btn-sol-licitar').addEventListener('click', () => obrirModalSolicitar(obj.id, obj.nom));
@@ -140,7 +144,7 @@ function renderitzarObjectes(llista) {
     });
 }
 
-// Sol·licitar producte
+// Sol·licitar 
 function obrirModalSolicitar(objectId, nomObjecte) {
     // Si no ha iniciat sessió, obrim el modal d'auth que ja existeix al header
     if (!sessioUserId) {
@@ -202,13 +206,15 @@ function omplirSelectCategories() {
 }
 
 function aplicarFiltres() {
-    const cat   = document.getElementById('filtre-categoria').value;
+    const cat = document.getElementById('filtre-categoria').value;
     const estat = document.getElementById('filtre-estat').value;
+    const cp = document.getElementById('filtre-cp').value.trim();
     const cerca = document.getElementById('filtre-cerca').value.toLowerCase().trim();
     renderitzarObjectes(totsElsObjectes.filter(o =>
-        (!cat   || o.categoria === cat) &&
+        (!cat || o.categoria === cat) &&
         (!estat || o.estat === estat) &&
-        (!cerca || o.nom.toLowerCase().includes(cerca) || (o.descripcio||'').toLowerCase().includes(cerca))
+        (!cp || o.cp === cp) &&
+        (!cerca || o.nom.toLowerCase().includes(cerca) || (o.descripcio || '').toLowerCase().includes(cerca))
     ));
 }
 
@@ -223,13 +229,13 @@ async function eliminar(id, nom) {
 function obrirModal(id) {
     const obj = totsElsObjectes.find(o => o.id === id);
     if (!obj) return;
-    document.getElementById('edit-id').value         = obj.id;
-    document.getElementById('edit-nom').value        = obj.nom;
+    document.getElementById('edit-id').value = obj.id;
+    document.getElementById('edit-nom').value = obj.nom;
     document.getElementById('edit-descripcio').value = obj.descripcio || '';
-    document.getElementById('edit-categoria').value  = obj.categoria;
-    document.getElementById('edit-cp').value         = obj.cp;
-    document.getElementById('edit-estat').value      = obj.estat;
-    document.getElementById('edit-imatge').value     = obj.imatge || '';
+    omplirSelectCategoriaEdit(obj.categoria);
+    document.getElementById('edit-cp').value = obj.cp;
+    document.getElementById('edit-estat').value = obj.estat;
+    document.getElementById('edit-imatge').value = obj.imatge || '';
     document.getElementById('edit-errors').textContent = '';
     document.getElementById('modal-editar').style.display = 'flex';
 }
@@ -242,14 +248,14 @@ document.getElementById('formulari-editar').addEventListener('submit', async e =
     e.preventDefault();
     const id   = parseInt(document.getElementById('edit-id').value);
     const body = {
-        nom:        document.getElementById('edit-nom').value.trim(),
+        nom: document.getElementById('edit-nom').value.trim(),
         descripcio: document.getElementById('edit-descripcio').value.trim(),
-        categoria:  document.getElementById('edit-categoria').value.trim(),
-        cp:         document.getElementById('edit-cp').value.trim(),
-        estat:      document.getElementById('edit-estat').value,
-        imatge:     document.getElementById('edit-imatge').value.trim()
+        categoria:  obtenirCategoriaEdit(),
+        cp: document.getElementById('edit-cp').value.trim(),
+        estat: document.getElementById('edit-estat').value,
+        imatge: document.getElementById('edit-imatge').value.trim()
     };
-    const res  = await fetch(`/api/objects/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    const res = await fetch(`/api/objects/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const data = await res.json();
     if (!res.ok) { document.getElementById('edit-errors').textContent = data.error; return; }
     const idx = totsElsObjectes.findIndex(o => o.id === id);
@@ -260,15 +266,72 @@ document.getElementById('formulari-editar').addEventListener('submit', async e =
 
 document.getElementById('filtre-categoria').addEventListener('change', aplicarFiltres);
 document.getElementById('filtre-estat').addEventListener('change', aplicarFiltres);
+document.getElementById('filtre-cp').addEventListener('input', aplicarFiltres);
 document.getElementById('filtre-cerca').addEventListener('input', aplicarFiltres);
 document.getElementById('btn-netejar-filtres').addEventListener('click', () => {
     document.getElementById('filtre-categoria').value = '';
     document.getElementById('filtre-estat').value = '';
+    document.getElementById('filtre-cp').value = '';
     document.getElementById('filtre-cerca').value = '';
     renderitzarObjectes(totsElsObjectes);
 });
 
-document.addEventListener('DOMContentLoaded', inicialitzar);
+// Categories dinàmiques (modal editar) 
+let categoriesCache = [];
+
+async function carregarCategories() {
+    try {
+        categoriesCache = await fetch('/api/categories').then(r => r.json());
+    } catch { categoriesCache = []; }
+}
+
+function omplirSelectCategoriaEdit(valorActual) {
+    const sel = document.getElementById('edit-categoria');
+    const nova = document.getElementById('edit-categoria-nova');
+    sel.innerHTML = '';
+    categoriesCache.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat; opt.textContent = cat;
+        sel.appendChild(opt);
+    });
+    // Opció "Altra" per escriure una categoria nova
+    const optAltra = document.createElement('option');
+    optAltra.value = '__altra__'; optAltra.textContent = '+ Altra categoria...';
+    sel.appendChild(optAltra);
+
+    // Si la categoria actual no és a la llista, afegir-la i seleccionar-la
+    if (valorActual && !categoriesCache.includes(valorActual)) {
+        const optExtra = document.createElement('option');
+        optExtra.value = valorActual; optExtra.textContent = valorActual;
+        sel.insertBefore(optExtra, optAltra);
+        sel.value = valorActual;
+    } else {
+        sel.value = valorActual || (categoriesCache[0] || '');
+    }
+    nova.style.display = 'none';
+    nova.value = '';
+}
+
+function obtenirCategoriaEdit() {
+    const sel = document.getElementById('edit-categoria');
+    if (sel.value === '__altra__') {
+        return document.getElementById('edit-categoria-nova').value.trim();
+    }
+    return sel.value.trim();
+}
+
+document.addEventListener('change', e => {
+    if (e.target.id === 'edit-categoria') {
+        const nova = document.getElementById('edit-categoria-nova');
+        nova.style.display = e.target.value === '__altra__' ? 'block' : 'none';
+        if (e.target.value === '__altra__') nova.focus();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await carregarCategories();
+    inicialitzar();
+});
 </script>
 </body>
 </html>
