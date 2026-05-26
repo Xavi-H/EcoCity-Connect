@@ -4,19 +4,33 @@ import bcrypt from 'bcryptjs';
 // DAO (Data Access Object): aquí van solo las consultas a la base de datos.
 export const ObjectModel = {
 
-    // GET tots els objectes
+    // GET tots els objectes (inclou el username del propietari)
     async getAll() {
-        return await db.all("SELECT * FROM objects");
+        return await db.all(`
+            SELECT o.*, u.username
+            FROM objects o
+            LEFT JOIN users u ON o.user_id = u.id
+        `);
     },
 
     // GET objectes filtrats per categoria
     async getByCategoria(categoria) {
-        return await db.all("SELECT * FROM objects WHERE categoria = ?", [categoria]);
+        return await db.all(`
+            SELECT o.*, u.username
+            FROM objects o
+            LEFT JOIN users u ON o.user_id = u.id
+            WHERE o.categoria = ?
+        `, [categoria]);
     },
 
-    // GET un objecte per ID
+    // GET un objecte per ID (inclou el username del propietari)
     async getById(id) {
-        return await db.get("SELECT * FROM objects WHERE id = ?", [id]);
+        return await db.get(`
+            SELECT o.*, u.username
+            FROM objects o
+            LEFT JOIN users u ON o.user_id = u.id
+            WHERE o.id = ?
+        `, [id]);
     },
 
     // GET objectes d'un usuari concret
@@ -41,15 +55,14 @@ export const ObjectModel = {
             "UPDATE objects SET nom = ?, descripcio = ?, categoria = ?, cp = ?, estat = ?, imatge = ? WHERE id = ?",
             [nom, descripcio, categoria, cp, estat, imatge, id]
         );
-        // result.changes indica quantes files es van modificar
-        if (result.changes === 0) return null; // No existia aquest ID
+        if (result.changes === 0) return null;
         return { id: parseInt(id), nom, descripcio, categoria, cp, estat, imatge };
     },
 
     // DELETE - Eliminar un objecte
     async delete(id) {
         const result = await db.run("DELETE FROM objects WHERE id = ?", [id]);
-        return result.changes > 0; // true si es va borrar, false si no existia
+        return result.changes > 0;
     }
 };
 
@@ -71,16 +84,17 @@ export const UserModel = {
     },
 
     // Verificar contrasenya: retorna l'usuari si és correcta, null si no
+    // FIX: la columna a la BD es diu password_hash, no password
     async verifyPassword(username, password) {
         const user = await db.get("SELECT * FROM users WHERE username = ?", [username]);
         if (!user) return null;
-        const valid = await bcrypt.compare(password, user.password);
+        const valid = await bcrypt.compare(password, user.password_hash);
         return valid ? { id: user.id, username: user.username } : null;
     }
 };
 
 export const SolicitudModel = {
- 
+
     // Crear una nova sol·licitud
     async create(object_id, solicitant_id, missatge) {
         const result = await db.run(
@@ -89,7 +103,7 @@ export const SolicitudModel = {
         );
         return { id: result.lastID, object_id, solicitant_id, missatge, estat: 'pendent' };
     },
- 
+
     // Comprovar si ja existeix una sol·licitud pendent/acceptada per evitar duplicats
     async existeix(object_id, solicitant_id) {
         const row = await db.get(
@@ -98,7 +112,7 @@ export const SolicitudModel = {
         );
         return !!row;
     },
- 
+
     // Sol·licituds enviades per un usuari (les que ell ha fet)
     async getBySolicitant(solicitant_id) {
         return await db.all(`
@@ -112,7 +126,7 @@ export const SolicitudModel = {
             ORDER BY s.created_at DESC
         `, [solicitant_id]);
     },
- 
+
     // Sol·licituds rebudes: les dels objectes que pertanyen a l'usuari
     async getByPropietari(propietari_id) {
         return await db.all(`
@@ -126,7 +140,7 @@ export const SolicitudModel = {
             ORDER BY s.created_at DESC
         `, [propietari_id]);
     },
- 
+
     // Canviar estat (acceptada / rebutjada) — només el propietari
     async updateEstat(id, estat, propietari_id) {
         const sol = await db.get(`
@@ -138,7 +152,7 @@ export const SolicitudModel = {
         await db.run("UPDATE solicituds SET estat = ? WHERE id = ?", [estat, id]);
         return { id, estat };
     },
- 
+
     // Cancel·lar — només el sol·licitant i si és pendent
     async delete(id, solicitant_id) {
         const result = await db.run(
