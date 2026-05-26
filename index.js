@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path"; // Manejar rutas de carpetas
 import { fileURLToPath } from 'url';
-import { ObjectModel, UserModel } from "./dao/dao.js";
+import { ObjectModel, UserModel, SolicitudModel } from "./dao/dao.js";
 import session from 'express-session';
 
 // Necesario para usar __dirname con ES Modules
@@ -172,6 +172,78 @@ APP.delete('/api/objects/:id', async (req, res) => {
 
         await ObjectModel.delete(id);
         res.json({ missatge: 'Objecte eliminat', id });
+    } catch (err) {
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
+// SOL·LICITUDS
+
+// POST /api/solicituds — crear sol·licitud
+APP.post('/api/solicituds', async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Cal iniciar sessió per sol·licitar' });
+    const { object_id, missatge } = req.body;
+    if (!object_id) return res.status(400).json({ error: 'object_id és obligatori' });
+    try {
+        const obj = await ObjectModel.getById(object_id);
+        if (!obj) return res.status(404).json({ error: 'Objecte no trobat' });
+        if (obj.user_id === req.session.userId) return res.status(400).json({ error: 'No pots sol·licitar el teu propi objecte' });
+        if (obj.estat !== 'disponible') return res.status(400).json({ error: 'Aquest objecte no està disponible' });
+        const jaExisteix = await SolicitudModel.existeix(object_id, req.session.userId);
+        if (jaExisteix) return res.status(409).json({ error: 'Ja has sol·licitat aquest objecte' });
+        const nova = await SolicitudModel.create(object_id, req.session.userId, missatge);
+        res.status(201).json(nova);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
+// GET /api/solicituds/enviades — sol·licituds que ha fet l'usuari
+APP.get('/api/solicituds/enviades', async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Cal iniciar sessió' });
+    try {
+        const data = await SolicitudModel.getBySolicitant(req.session.userId);
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
+// GET /api/solicituds/rebudes — sol·licituds sobre els objectes de l'usuari
+APP.get('/api/solicituds/rebudes', async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Cal iniciar sessió' });
+    try {
+        const data = await SolicitudModel.getByPropietari(req.session.userId);
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
+// PATCH /api/solicituds/:id/estat — acceptar o rebutjar (propietari)
+APP.patch('/api/solicituds/:id/estat', async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Cal iniciar sessió' });
+    const id = parseInt(req.params.id);
+    const { estat } = req.body;
+    if (!['acceptada', 'rebutjada'].includes(estat)) return res.status(400).json({ error: 'estat ha de ser acceptada o rebutjada' });
+    try {
+        const result = await SolicitudModel.updateEstat(id, estat, req.session.userId);
+        if (!result) return res.status(403).json({ error: 'No tens permís o la sol·licitud no existeix' });
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
+// DELETE /api/solicituds/:id — cancel·lar sol·licitud pròpia
+APP.delete('/api/solicituds/:id', async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Cal iniciar sessió' });
+    const id = parseInt(req.params.id);
+    try {
+        const ok = await SolicitudModel.delete(id, req.session.userId);
+        if (!ok) return res.status(403).json({ error: 'No pots cancel·lar aquesta sol·licitud' });
+        res.json({ missatge: 'Sol·licitud cancel·lada', id });
     } catch (err) {
         res.status(500).json({ error: 'Error intern del servidor' });
     }
