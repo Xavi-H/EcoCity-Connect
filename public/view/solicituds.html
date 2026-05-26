@@ -7,40 +7,9 @@
     <link rel="stylesheet" href="./../style/style.css">
     <script src="./../components.js" defer></script>
     <script src="./../modeFosc.js" defer></script>
-    <style>
-        .sol-card {
-            background: #fff;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            padding: 1rem 1.1rem;
-            margin-bottom: .75rem;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: flex-start;
-            gap: .65rem;
-        }
-        .sol-card-info  { flex: 1; min-width: 200px; }
-        .sol-card-info h4 { margin: 0 0 .2rem; font-size: 1rem; }
-        .sol-card-meta  { font-size: .82rem; color: #6c757d; line-height: 1.5; }
-        .sol-card-meta strong { color: #212529; }
-        .sol-missatge   { font-style: italic; color: #495057; margin-top:.25rem; font-size:.88rem; }
-        .sol-accions    { display:flex; gap:.45rem; align-items:center; flex-wrap:wrap; }
-        .btn-cancel     { background:#ffe0e0; color:#c1121f; border:none; border-radius:6px; padding:.35rem .7rem; cursor:pointer; font-size:.82rem; }
-        .btn-cancel:hover { background:#f4a4a8; }
-        .tabs           { display:flex; gap:.5rem; margin-bottom:1.5rem; border-bottom:2px solid #dee2e6; }
-        .tab-btn        { background:none; border:none; padding:.6rem 1.2rem; cursor:pointer; font-size:.95rem; color:#6c757d; border-bottom:3px solid transparent; margin-bottom:-2px; transition:.15s; }
-        .tab-btn.activa { color:#2d6a4f; font-weight:700; border-bottom-color:#2d6a4f; }
-        .tab-panell     { display:none; }
-        .tab-panell.actiu { display:block; }
-        .buit           { color:#6c757d; padding:.75rem 0; }
-        .estat-badge-pendent   { background:#fff3cd; color:#856404; }
-        .estat-badge-acceptada { background:#d8f3dc; color:#1b4332; }
-        .estat-badge-rebutjada { background:#fde2e4; color:#c1121f; }
-    </style>
 </head>
 <body>
 <main>
-
     <!-- No logejat -->
     <div id="vista-no-login" style="display:none; text-align:center; padding:4rem 1rem;">
         <p style="font-size:1.2rem;">🔒 Has d'iniciar sessió per veure les sol·licituds.</p>
