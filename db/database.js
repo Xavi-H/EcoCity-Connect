@@ -4,12 +4,12 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Configuración para emular __dirname en ES Modules
+// Necesario para emular __dirname en ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const dbPath = path.join(__dirname, 'ecocity.db');
-const dbInitPath = path.join(__dirname, 'schema.sql');
+const dbInitPath = path.join(__dirname, 'db_init.sql');
 
 // Abrir la conexión con soporte para Promesas (async/await)
 const db = await open({
@@ -17,7 +17,7 @@ const db = await open({
     driver: sqlite3.Database
 });
 
-// Inicialización automática
+// Iniciar las tablas automaticamente si no existen
 try {
     const taulaExisteix = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='objects'");
     if (!taulaExisteix) {

@@ -1,14 +1,18 @@
 import express from "express";
-import fs from "fs"; // Treballar amb arxius
-import bodyParser from "body-parser"; //Ho afegim per entendre que estem rebent un json des de la petició post.
 import path from "path"; // Manejar rutas de carpetas
+import { fileURLToPath } from 'url';
+import { ObjectModel } from "./dao/dao.js";
 
-const APP = express();  // Aquest es el servidor web
-const PORT = 3000;      // El port que escoltara el servidor
+// Necesario para usar __dirname con ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const APP = express(); // Aquest es el servidor web
+const PORT = 3000; // El port que escoltara el servidor
+
 
 // ==== CONFIGURACIÓ ====
-APP.use(bodyParser.json()); // Entendre que rebem json
-APP.use(express.json()); // Para que el servidor pueda leer datos JSON
+APP.use(express.json()); // Para que el servidor pueda leer datos JSON para las peticions
 APP.use(express.static('public')); // fa que la carpeta public sigui visible al servidor
 
 
@@ -23,17 +27,100 @@ const readData=()=>{
 };
 
 
-// ==== RUTAS (Endpoints) ====
+// ==== Endpoints (API REST) ====
 
 // Mostrara l'index.html quan es consulti l'arrel
 APP.get('/', (req, res) => {
     res.sendFile(path.resolve('./public/index.html'));
 });
 
-// Ruta per obtenir els objectes
-APP.get('/api/objects', (req, res) => {
-    const DATA = readData();
-    res.json(DATA);
+// GET /api/objects → Obtener todos los objetos
+// Es pot filtrar per categoria: GET /api/objects?categoria=Eines
+APP.get('/api/objects', async (req, res) => {
+    try {
+        const { categoria } = req.query;
+        let data;
+        if (categoria) {
+            data = await ObjectModel.getByCategoria(categoria);
+        } else {
+            data = await ObjectModel.getAll();
+        }
+        res.json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
+// GET /api/objects/:id → Obtener un objeto por ID
+APP.get('/api/objects/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const objeto = await ObjectModel.getById(id);
+        if (!objeto) {
+            return res.status(404).json({ error: 'Objecte no trobat' });
+        }
+        res.json(objeto);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
+// POST /api/objects → Crear un objeto nuevo
+// Body (JSON): { nom, descripcio, categoria, cp, estat, imatge }
+APP.post('/api/objects', async (req, res) => {
+    try {
+        const { nom, descripcio, categoria, cp, estat, imatge } = req.body;
+
+        // Validación básica de campos obligatorios
+        if (!nom || !categoria || !cp) {
+            return res.status(400).json({ error: 'Els camps nom, categoria i cp són obligatoris' });
+        }
+
+        const nouObjecte = await ObjectModel.create({ nom, descripcio, categoria, cp, estat, imatge });
+        res.status(201).json(nouObjecte);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
+// PUT /api/objects/:id → Actualizar un objeto existente
+// Body (JSON): { nom, descripcio, categoria, cp, estat, imatge }
+APP.put('/api/objects/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { nom, descripcio, categoria, cp, estat, imatge } = req.body;
+
+        if (!nom || !categoria || !cp) {
+            return res.status(400).json({ error: 'Els camps nom, categoria i cp són obligatoris' });
+        }
+
+        const objecteActualitzat = await ObjectModel.update(id, { nom, descripcio, categoria, cp, estat, imatge });
+        if (!objecteActualitzat) {
+            return res.status(404).json({ error: 'Objecte no trobat' });
+        }
+        res.json(objecteActualitzat);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
+// DELETE /api/objects/:id → Eliminar un objeto
+APP.delete('/api/objects/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const eliminat = await ObjectModel.delete(id);
+        if (!eliminat) {
+            return res.status(404).json({ error: 'Objecte no trobat' });
+        }
+        res.json({ missatge: 'Objecte eliminat correctament', id });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
 });
 
 // El servidor escolta el port que rep com a parametre
