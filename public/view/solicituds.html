@@ -1,14 +1,239 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCity Connect</title>
+    <title>Sol·licituds - EcoCity Connect</title>
     <link rel="stylesheet" href="./../style/style.css">
-    <script src="./../components.js"></script>
+    <script src="./../components.js" defer></script>
+    <script src="./../modeFosc.js" defer></script>
+    <style>
+        .sol-card {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem 1.1rem;
+            margin-bottom: .75rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: .65rem;
+        }
+        .sol-card-info  { flex: 1; min-width: 200px; }
+        .sol-card-info h4 { margin: 0 0 .2rem; font-size: 1rem; }
+        .sol-card-meta  { font-size: .82rem; color: #6c757d; line-height: 1.5; }
+        .sol-card-meta strong { color: #212529; }
+        .sol-missatge   { font-style: italic; color: #495057; margin-top:.25rem; font-size:.88rem; }
+        .sol-accions    { display:flex; gap:.45rem; align-items:center; flex-wrap:wrap; }
+        .btn-cancel     { background:#ffe0e0; color:#c1121f; border:none; border-radius:6px; padding:.35rem .7rem; cursor:pointer; font-size:.82rem; }
+        .btn-cancel:hover { background:#f4a4a8; }
+        .tabs           { display:flex; gap:.5rem; margin-bottom:1.5rem; border-bottom:2px solid #dee2e6; }
+        .tab-btn        { background:none; border:none; padding:.6rem 1.2rem; cursor:pointer; font-size:.95rem; color:#6c757d; border-bottom:3px solid transparent; margin-bottom:-2px; transition:.15s; }
+        .tab-btn.activa { color:#2d6a4f; font-weight:700; border-bottom-color:#2d6a4f; }
+        .tab-panell     { display:none; }
+        .tab-panell.actiu { display:block; }
+        .buit           { color:#6c757d; padding:.75rem 0; }
+        .estat-badge-pendent   { background:#fff3cd; color:#856404; }
+        .estat-badge-acceptada { background:#d8f3dc; color:#1b4332; }
+        .estat-badge-rebutjada { background:#fde2e4; color:#c1121f; }
+    </style>
 </head>
-    <body>
+<body>
+<main>
 
+    <!-- No logejat -->
+    <div id="vista-no-login" style="display:none; text-align:center; padding:4rem 1rem;">
+        <p style="font-size:1.2rem;">🔒 Has d'iniciar sessió per veure les sol·licituds.</p>
+        <p>Fes clic a <strong>🔑 Entrar</strong> a la barra superior.</p>
+    </div>
 
-    </body>
+    <!-- Logejat -->
+    <div id="vista-principal" style="display:none;">
+        <h2>📩 Sol·licituds</h2>
+
+        <!-- Pestanyes -->
+        <nav class="tabs">
+            <button class="tab-btn activa" data-tab="enviades">
+                📤 Enviades <span id="badge-enviades"></span>
+            </button>
+            <button class="tab-btn" data-tab="rebudes">
+                📬 Rebudes <span id="badge-rebudes"></span>
+            </button>
+        </nav>
+
+        <!-- Panell enviades -->
+        <div id="tab-enviades" class="tab-panell actiu">
+            <p style="color:#6c757d; font-size:.9rem; margin-bottom:1rem;">Objectes que has sol·licitat a altres usuaris.</p>
+            <p id="enviades-carregant">Carregant...</p>
+            <div id="enviades-contenidor"></div>
+        </div>
+
+        <!-- Panell rebudes -->
+        <div id="tab-rebudes" class="tab-panell">
+            <p style="color:#6c757d; font-size:.9rem; margin-bottom:1rem;">Sol·licituds sobre els teus objectes publicats.</p>
+            <p id="rebudes-carregant">Carregant...</p>
+            <div id="rebudes-contenidor"></div>
+        </div>
+    </div>
+
+</main>
+
+<script>
+// ── Pestanyes ──────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activa'));
+        document.querySelectorAll('.tab-panell').forEach(p => p.classList.remove('actiu'));
+        btn.classList.add('activa');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('actiu');
+    });
+});
+
+// ── Inicialitzar ───────────────────────────────────────────────
+async function inicialitzar() {
+    const sessio = await fetch('/api/me').then(r => r.json());
+    if (!sessio.loggedIn) {
+        document.getElementById('vista-no-login').style.display = 'block';
+        return;
+    }
+    document.getElementById('vista-principal').style.display = 'block';
+    carregarEnviades();
+    carregarRebudes();
+}
+
+// ── Sol·licituds ENVIADES ──────────────────────────────────────
+async function carregarEnviades() {
+    const el = document.getElementById('enviades-carregant');
+    el.style.display = 'block';
+    try {
+        const res  = await fetch('/api/solicituds/enviades');
+        const data = await res.json();
+        el.style.display = 'none';
+        document.getElementById('badge-enviades').textContent = data.length ? `(${data.length})` : '';
+        renderitzarEnviades(data);
+    } catch {
+        el.textContent = 'Error carregant sol·licituds.';
+    }
+}
+
+function renderitzarEnviades(llista) {
+    const cont = document.getElementById('enviades-contenidor');
+    cont.innerHTML = '';
+    if (llista.length === 0) {
+        cont.innerHTML = '<p class="buit">Encara no has sol·licitat cap objecte. Ves al <a href="catalegGeneral.html">catàleg</a> per explorar.</p>';
+        return;
+    }
+    llista.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'sol-card';
+        div.innerHTML = `
+            <img src="${s.imatge || ''}" alt="${s.nom}"
+                 onerror="this.style.display='none'"
+                 style="width:72px; height:72px; object-fit:cover; border-radius:8px; border:1px solid #dee2e6; flex-shrink:0;">
+            <div class="sol-card-info">
+                <h4>${s.nom}</h4>
+                <div class="sol-card-meta">
+                    <strong>Categoria:</strong> ${s.categoria} &nbsp;|&nbsp; <strong>CP:</strong> ${s.cp}<br>
+                    <strong>Propietari:</strong> ${s.propietari || 'Sense propietari'} &nbsp;|&nbsp;
+                    <strong>Objecte:</strong> <span class="estat estat-${s.object_estat}">${s.object_estat?.toUpperCase()}</span><br>
+                    <strong>Sol·licitada:</strong> ${new Date(s.created_at).toLocaleDateString('ca-ES')}
+                </div>
+                ${s.missatge ? `<p class="sol-missatge">"${s.missatge}"</p>` : ''}
+            </div>
+            <div class="sol-accions">
+                <span class="estat estat-badge-${s.estat}"
+                      style="font-size:.78rem; font-weight:700; padding:.2rem .55rem; border-radius:4px; white-space:nowrap;">
+                    ${iconEstat(s.estat)} ${s.estat.toUpperCase()}
+                </span>
+                ${s.estat === 'pendent'
+                    ? `<button class="btn-cancel" data-id="${s.id}">❌ Cancel·lar</button>`
+                    : ''}
+            </div>
+        `;
+        if (s.estat === 'pendent') {
+            div.querySelector('.btn-cancel').addEventListener('click', () => cancellarSolicitud(s.id));
+        }
+        cont.appendChild(div);
+    });
+}
+
+async function cancellarSolicitud(id) {
+    if (!confirm('Cancel·lar aquesta sol·licitud?')) return;
+    const res = await fetch(`/api/solicituds/${id}`, { method: 'DELETE' });
+    if (!res.ok) { alert((await res.json()).error); return; }
+    carregarEnviades();
+}
+
+// ── Sol·licituds REBUDES ───────────────────────────────────────
+async function carregarRebudes() {
+    const el = document.getElementById('rebudes-carregant');
+    el.style.display = 'block';
+    try {
+        const res  = await fetch('/api/solicituds/rebudes');
+        const data = await res.json();
+        el.style.display = 'none';
+        const pendents = data.filter(s => s.estat === 'pendent').length;
+        document.getElementById('badge-rebudes').textContent = pendents ? `(${pendents} pendent${pendents > 1 ? 's' : ''})` : '';
+        renderitzarRebudes(data);
+    } catch {
+        el.textContent = 'Error carregant sol·licituds.';
+    }
+}
+
+function renderitzarRebudes(llista) {
+    const cont = document.getElementById('rebudes-contenidor');
+    cont.innerHTML = '';
+    if (llista.length === 0) {
+        cont.innerHTML = '<p class="buit">Cap sol·licitud rebuda de moment.</p>';
+        return;
+    }
+    llista.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'sol-card';
+        div.innerHTML = `
+            <div class="sol-card-info">
+                <h4>${s.nom} <small style="color:#6c757d; font-weight:normal;">— CP ${s.cp}</small></h4>
+                <div class="sol-card-meta">
+                    <strong>Sol·licitant:</strong> ${s.solicitant}<br>
+                    <strong>Categoria:</strong> ${s.categoria}<br>
+                    <strong>Data:</strong> ${new Date(s.created_at).toLocaleDateString('ca-ES')}
+                </div>
+                ${s.missatge ? `<p class="sol-missatge">"${s.missatge}"</p>` : ''}
+            </div>
+            <div class="sol-accions">
+                <span class="estat estat-badge-${s.estat}"
+                      style="font-size:.78rem; font-weight:700; padding:.2rem .55rem; border-radius:4px; white-space:nowrap;">
+                    ${iconEstat(s.estat)} ${s.estat.toUpperCase()}
+                </span>
+                ${s.estat === 'pendent' ? `
+                    <button class="btn-primary btn-acceptar" data-id="${s.id}" style="padding:.35rem .7rem; font-size:.82rem;">✅ Acceptar</button>
+                    <button class="btn-cancel btn-rebutjar" data-id="${s.id}">❌ Rebutjar</button>
+                ` : ''}
+            </div>
+        `;
+        if (s.estat === 'pendent') {
+            div.querySelector('.btn-acceptar').addEventListener('click', () => canviarEstat(s.id, 'acceptada'));
+            div.querySelector('.btn-rebutjar').addEventListener('click', () => canviarEstat(s.id, 'rebutjada'));
+        }
+        cont.appendChild(div);
+    });
+}
+
+async function canviarEstat(id, estat) {
+    const res = await fetch(`/api/solicituds/${id}/estat`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estat })
+    });
+    if (!res.ok) { alert((await res.json()).error); return; }
+    carregarRebudes();
+}
+
+function iconEstat(estat) {
+    return { pendent: '⏳', acceptada: '✅', rebutjada: '❌' }[estat] || '';
+}
+
+document.addEventListener('DOMContentLoaded', inicialitzar);
+</script>
+</body>
 </html>

@@ -1,14 +1,145 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCity Connect</title>
+    <title>Publicar objecte - EcoCity Connect</title>
     <link rel="stylesheet" href="./../style/style.css">
-    <script src="./../components.js"></script>
+    <script src="./../components.js" defer></script>
+    <script src="./../modeFosc.js" defer></script>
 </head>
-    <body>
+<body>
+<main>
 
+    <!-- Vista: no logejat -->
+    <div id="vista-no-login" style="display:none; text-align:center; padding:4rem 1rem;">
+        <p style="font-size:1.3rem; margin-bottom:.75rem;">🔒 Has d'iniciar sessió per publicar objectes.</p>
+        <p>Fes clic a <strong>🔑 Entrar</strong> a la barra superior.</p>
+    </div>
 
-    </body>
+    <!-- Vista: logejat -->
+    <div id="vista-crear" style="display:none;">
+        <h2>➕ Publicar un objecte nou</h2>
+        <p style="color:#6c757d; margin-bottom:1.5rem;">Omple el formulari per oferir un objecte a la comunitat.</p>
+
+        <section class="panell-seccio">
+            <form id="form-crear">
+                <label for="crear-nom">Nom *</label>
+                <input type="text" id="crear-nom" placeholder="Ex: Taladre elèctric" required>
+
+                <label for="crear-descripcio">Descripció</label>
+                <textarea id="crear-descripcio" placeholder="Descriu l'objecte: estat, mida, ús recomanat…" rows="3"></textarea>
+
+                <label for="crear-categoria">Categoria *</label>
+                <input type="text" id="crear-categoria" placeholder="Ex: Eines, Electronica, Llar…" required>
+
+                <label for="crear-cp">Codi Postal *</label>
+                <input type="text" id="crear-cp" placeholder="Ex: 08001" maxlength="5" required>
+
+                <label for="crear-estat">Estat inicial</label>
+                <select id="crear-estat">
+                    <option value="disponible">Disponible</option>
+                    <option value="prestat">Prestat</option>
+                </select>
+
+                <label for="crear-imatge">URL de la imatge (opcional)</label>
+                <input type="text" id="crear-imatge" placeholder="https://exemple.com/imatge.jpg">
+
+                <!-- Previsualització imatge -->
+                <div id="preview-wrap" style="display:none; margin-top:.25rem;">
+                    <img id="preview-img" src="" alt="Previsualització"
+                         style="max-width:200px; max-height:160px; border-radius:8px; border:1px solid #dee2e6; object-fit:cover;">
+                </div>
+
+                <p id="crear-error" class="form-error"></p>
+                <p id="crear-ok" style="color:#2d6a4f; font-weight:600; display:none;">✅ Objecte publicat correctament!</p>
+
+                <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:.25rem;">
+                    <button type="submit" class="btn-primary">📤 Publicar objecte</button>
+                    <button type="button" id="btn-reset" style="background:#e9ecef; border:none; border-radius:6px; padding:.6rem 1rem; cursor:pointer;">Netejar</button>
+                </div>
+            </form>
+        </section>
+
+        <section style="margin-top:2rem; background:#f8f9fa; border-radius:10px; padding:1.25rem; max-width:480px;">
+            <h3 style="margin:0 0 .5rem;">💡 Consells</h3>
+            <ul style="margin:0; padding-left:1.25rem; line-height:1.7; color:#495057; font-size:.9rem;">
+                <li>Usa un nom clar i descriptiu.</li>
+                <li>Afegeix una foto per rebre més sol·licituds.</li>
+                <li>El CP ajuda als veïns a trobar objectes propers.</li>
+                <li>Pots editar o eliminar l'objecte des del teu <a href="panellUsuari.html">panell d'usuari</a>.</li>
+            </ul>
+        </section>
+    </div>
+
+</main>
+
+<script>
+async function inicialitzar() {
+    const sessio = await fetch('/api/me').then(r => r.json());
+
+    if (!sessio.loggedIn) {
+        document.getElementById('vista-no-login').style.display = 'block';
+        return;
+    }
+    document.getElementById('vista-crear').style.display = 'block';
+}
+
+// Previsualització de la imatge en temps real
+document.addEventListener('DOMContentLoaded', () => {
+    inicialitzar();
+
+    document.getElementById('crear-imatge').addEventListener('input', function () {
+        const url   = this.value.trim();
+        const wrap  = document.getElementById('preview-wrap');
+        const img   = document.getElementById('preview-img');
+        if (url) {
+            img.src            = url;
+            wrap.style.display = 'block';
+            img.onerror        = () => { wrap.style.display = 'none'; };
+            img.onload         = () => { wrap.style.display = 'block'; };
+        } else {
+            wrap.style.display = 'none';
+        }
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        document.getElementById('form-crear').reset();
+        document.getElementById('crear-error').textContent = '';
+        document.getElementById('crear-ok').style.display  = 'none';
+        document.getElementById('preview-wrap').style.display = 'none';
+    });
+
+    document.getElementById('form-crear').addEventListener('submit', async e => {
+        e.preventDefault();
+        const errorEl = document.getElementById('crear-error');
+        const okEl    = document.getElementById('crear-ok');
+        errorEl.textContent = '';
+        okEl.style.display  = 'none';
+
+        const body = {
+            nom:        document.getElementById('crear-nom').value.trim(),
+            descripcio: document.getElementById('crear-descripcio').value.trim(),
+            categoria:  document.getElementById('crear-categoria').value.trim(),
+            cp:         document.getElementById('crear-cp').value.trim(),
+            estat:      document.getElementById('crear-estat').value,
+            imatge:     document.getElementById('crear-imatge').value.trim()
+        };
+
+        const res  = await fetch('/api/objects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!res.ok) { errorEl.textContent = data.error; return; }
+
+        okEl.style.display = 'block';
+        e.target.reset();
+        document.getElementById('preview-wrap').style.display = 'none';
+        setTimeout(() => okEl.style.display = 'none', 3000);
+    });
+});
+</script>
+</body>
 </html>

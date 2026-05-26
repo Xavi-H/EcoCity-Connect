@@ -20,28 +20,22 @@
     <div id="vista-panell" style="display:none;">
         <h2>👤 Hola, <span id="panell-username"></span>!</h2>
 
-        <!-- Formulari crear objecte -->
+        <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:2rem;">
+            <a href="createObject.html" class="btn-primary" style="text-decoration:none; display:inline-block;">➕ Publicar objecte nou</a>
+            <a href="solicituds.html"   style="background:#457b9d; color:#fff; border:none; border-radius:6px; padding:.6rem 1rem; cursor:pointer; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block;">📩 Veure les meves sol·licituds</a>
+        </div>
+
+        <!-- Sol·licituds rebudes (sobre els meus objectes) -->
         <section class="panell-seccio">
-            <h3>➕ Publicar un objecte nou</h3>
-            <form id="form-crear">
-                <input type="text"     id="crear-nom"       placeholder="Nom *" required>
-                <textarea              id="crear-descripcio" placeholder="Descripció" rows="2"></textarea>
-                <input type="text"     id="crear-categoria"  placeholder="Categoria *" required>
-                <input type="text"     id="crear-cp"         placeholder="Codi Postal *" maxlength="5" required>
-                <select id="crear-estat">
-                    <option value="disponible">Disponible</option>
-                    <option value="prestat">Prestat</option>
-                </select>
-                <input type="text"     id="crear-imatge"     placeholder="URL imatge (opcional)">
-                <p id="crear-error" class="form-error"></p>
-                <p id="crear-ok"    style="color:#2d6a4f;display:none;">✅ Objecte publicat!</p>
-                <button type="submit" class="btn-primary">Publicar objecte</button>
-            </form>
+            <h3>📬 Sol·licituds rebudes</h3>
+            <p style="color:#6c757d; font-size:.9rem; margin-bottom:.75rem;">Altres usuaris han sol·licitat els teus objectes.</p>
+            <p id="rebudes-carregant">Carregant...</p>
+            <div id="rebudes-contenidor"></div>
         </section>
 
         <hr>
 
-        <!-- Llista objectes de l'usuari -->
+        <!-- Els meus objectes -->
         <section class="panell-seccio">
             <h3>📦 Els meus objectes</h3>
             <p id="meus-carregant">Carregant...</p>
@@ -53,7 +47,7 @@
     <div id="modal-editar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:8000;align-items:center;justify-content:center;">
         <div class="modal-auth-box">
             <h3>✏️ Editar objecte</h3>
-            <form id="form-editar">
+            <form id="form-editar" style="display:flex;flex-direction:column;gap:.6rem;">
                 <input type="hidden" id="edit-id">
                 <label>Nom *</label>
                 <input type="text" id="edit-nom" required>
@@ -78,14 +72,14 @@
             </form>
         </div>
     </div>
+
 </main>
 
 <script>
 let meusObjectes = [];
 
 async function inicialitzar() {
-    const res = await fetch('/api/me');
-    const sessio = await res.json();
+    const sessio = await fetch('/api/me').then(r => r.json());
 
     if (!sessio.loggedIn) {
         document.getElementById('vista-no-login').style.display = 'block';
@@ -95,28 +89,30 @@ async function inicialitzar() {
     document.getElementById('vista-panell').style.display = 'block';
     document.getElementById('panell-username').textContent = sessio.username;
     carregarObjectes();
+    carregarSolicitudsRebudes();
 }
 
+// ── Els meus objectes ──────────────────────────────────────────
 async function carregarObjectes() {
     const el = document.getElementById('meus-carregant');
     el.style.display = 'block';
-    el.textContent = 'Carregant...';
+    el.textContent   = 'Carregant...';
     try {
         const res = await fetch('/api/objects/meus');
         if (!res.ok) throw new Error((await res.json()).error);
         meusObjectes = await res.json();
         el.style.display = 'none';
-        renderitzar();
+        renderitzarObjectes();
     } catch (err) {
         el.textContent = 'Error: ' + err.message;
     }
 }
 
-function renderitzar() {
+function renderitzarObjectes() {
     const cont = document.getElementById('meus-contenidor');
     cont.innerHTML = '';
     if (meusObjectes.length === 0) {
-        cont.innerHTML = '<p>Encara no tens cap objecte publicat.</p>';
+        cont.innerHTML = '<p>Encara no tens cap objecte publicat. <a href="createObject.html">Publica\'n un ara</a>.</p>';
         return;
     }
     meusObjectes.forEach(obj => {
@@ -130,44 +126,74 @@ function renderitzar() {
                 <p><strong>Categoria:</strong> ${obj.categoria} &nbsp;|&nbsp; <strong>CP:</strong> ${obj.cp}</p>
                 <p class="estat estat-${obj.estat}">${obj.estat.toUpperCase()}</p>
                 <div class="card-accions">
-                    <button class="btn-editar" data-id="${obj.id}">✏️ Editar</button>
+                    <button class="btn-editar"   data-id="${obj.id}">✏️ Editar</button>
                     <button class="btn-eliminar" data-id="${obj.id}">🗑️ Eliminar</button>
                 </div>
             </div>`;
-        card.querySelector('.btn-editar').addEventListener('click',  () => obrirEditar(obj.id));
+        card.querySelector('.btn-editar').addEventListener('click',   () => obrirEditar(obj.id));
         card.querySelector('.btn-eliminar').addEventListener('click', () => eliminar(obj.id, obj.nom));
         cont.appendChild(card);
     });
 }
 
-// CREAR
-document.getElementById('form-crear').addEventListener('submit', async e => {
-    e.preventDefault();
-    const errorEl = document.getElementById('crear-error');
-    const okEl    = document.getElementById('crear-ok');
-    errorEl.textContent = '';
-    okEl.style.display  = 'none';
+// ── Sol·licituds rebudes ───────────────────────────────────────
+async function carregarSolicitudsRebudes() {
+    const el = document.getElementById('rebudes-carregant');
+    el.style.display = 'block';
+    try {
+        const res  = await fetch('/api/solicituds/rebudes');
+        const data = await res.json();
+        el.style.display = 'none';
+        renderitzarRebudes(data);
+    } catch {
+        el.textContent = 'Error carregant sol·licituds.';
+    }
+}
 
-    const body = {
-        nom:        document.getElementById('crear-nom').value.trim(),
-        descripcio: document.getElementById('crear-descripcio').value.trim(),
-        categoria:  document.getElementById('crear-categoria').value.trim(),
-        cp:         document.getElementById('crear-cp').value.trim(),
-        estat:      document.getElementById('crear-estat').value,
-        imatge:     document.getElementById('crear-imatge').value.trim()
-    };
+function renderitzarRebudes(llista) {
+    const cont = document.getElementById('rebudes-contenidor');
+    cont.innerHTML = '';
+    if (llista.length === 0) {
+        cont.innerHTML = '<p style="color:#6c757d;">Cap sol·licitud rebuda de moment.</p>';
+        return;
+    }
+    llista.forEach(s => {
+        const colors = { pendent: '#fff3cd', acceptada: '#d8f3dc', rebutjada: '#fde2e4' };
+        const div = document.createElement('div');
+        div.style.cssText = `background:${colors[s.estat] || '#f8f9fa'}; border-radius:8px; padding:.85rem 1rem; margin-bottom:.6rem; display:flex; flex-wrap:wrap; align-items:center; gap:.5rem;`;
+        div.innerHTML = `
+            <span style="flex:1; min-width:160px;">
+                <strong>${s.nom}</strong>
+                <small style="display:block; color:#6c757d; margin-top:.1rem;">
+                    Per <strong>${s.solicitant}</strong> · ${new Date(s.created_at).toLocaleDateString('ca-ES')}
+                </small>
+                ${s.missatge ? `<small style="display:block; color:#495057; margin-top:.2rem; font-style:italic;">"${s.missatge}"</small>` : ''}
+            </span>
+            <span class="estat estat-${s.estat}" style="white-space:nowrap;">${s.estat.toUpperCase()}</span>
+            ${s.estat === 'pendent' ? `
+                <button class="btn-acceptar btn-primary" data-id="${s.id}" style="padding:.35rem .7rem; font-size:.82rem;">✅ Acceptar</button>
+                <button class="btn-rebutjar" data-id="${s.id}" style="background:#ffe0e0; color:#c1121f; border:none; border-radius:6px; padding:.35rem .7rem; cursor:pointer; font-size:.82rem;">❌ Rebutjar</button>
+            ` : ''}
+        `;
+        if (s.estat === 'pendent') {
+            div.querySelector('.btn-acceptar').addEventListener('click', () => canviarEstat(s.id, 'acceptada'));
+            div.querySelector('.btn-rebutjar').addEventListener('click', () => canviarEstat(s.id, 'rebutjada'));
+        }
+        cont.appendChild(div);
+    });
+}
 
-    const res  = await fetch('/api/objects', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
-    const data = await res.json();
-    if (!res.ok) { errorEl.textContent = data.error; return; }
+async function canviarEstat(id, estat) {
+    const res = await fetch(`/api/solicituds/${id}/estat`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estat })
+    });
+    if (!res.ok) { alert((await res.json()).error); return; }
+    carregarSolicitudsRebudes();
+}
 
-    okEl.style.display = 'block';
-    e.target.reset();
-    await carregarObjectes();
-    setTimeout(() => okEl.style.display = 'none', 2500);
-});
-
-// EDITAR
+// Editar objecte
 function obrirEditar(id) {
     const obj = meusObjectes.find(o => o.id === id);
     if (!obj) return;
@@ -205,7 +231,7 @@ document.getElementById('form-editar').addEventListener('submit', async e => {
     await carregarObjectes();
 });
 
-// ELIMINAR
+// Eliminar objecte
 async function eliminar(id, nom) {
     if (!confirm(`Eliminar "${nom}"?`)) return;
     const res = await fetch(`/api/objects/${id}`, { method:'DELETE' });
