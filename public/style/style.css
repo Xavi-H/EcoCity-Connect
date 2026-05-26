@@ -1,0 +1,57 @@
+
+.btn-primary {
+  background: #2d6a4f;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: .6rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.btn-primary:hover { background: #1b4332; }
+
+.btn-sol-licitar {
+  background: #457b9d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: .4rem .8rem;
+  cursor: pointer;
+  font-size: .85rem;
+}
+.btn-sol-licitar:hover { background: #1d3557; }
+.btn-sol-licitar:disabled { background: #adb5bd; cursor: not-allowed; }
+
+/* objetos */
+.card-objeto {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
+.card-cos { padding: 1rem; flex: 1; }
+.card-accions { margin-top: .75rem; display: flex; gap: .5rem; }
+.btn-editar, .btn-eliminar {
+  border: none;
+  border-radius: 6px;
+  padding: .35rem .65rem;
+  cursor: pointer;
+  font-size: .82rem;
+}
+.btn-editar { background: #f0f4f8; }
+.btn-eliminar { background: #ffe0e0; color: #c1121f; }
+
+.estat { font-size: .8rem; font-weight: 700; display: inline-block; padding: .2rem .5rem; border-radius: 4px; }
+.estat-disponible { background: #d8f3dc; color: #1b4332; }
+.estat-prestat { background: #fde2e4; color: #c1121f; }
+
+#contenidor-objectes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
