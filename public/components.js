@@ -52,6 +52,18 @@ function initAuthUI() {
     navInfo.textContent = '👤 ' + username;
   }
 
+  // Pàgines que requereixen recarregar en canviar la sessió
+  function recarregarSiCal() {
+    const path = window.location.pathname;
+    if (path.includes('panellUsuari') ||
+        path.includes('createObject') ||
+        path.includes('solicituds') ||
+        path.includes('catalegGeneral') ||
+        path.includes('detallsProducte')) {
+      window.location.reload();
+    }
+  }
+
   btnObrir.addEventListener('click', () => {
     modal.style.display = 'flex';
     document.getElementById('login-error').textContent = '';
@@ -88,8 +100,7 @@ function initAuthUI() {
     if (!res.ok) { errorEl.textContent = data.error; return; }
     modal.style.display = 'none';
     mostrarLogout(data.username);
-    // Recarregar panell si hi estem
-    if (window.location.pathname.includes('panellUsuari')) window.location.reload();
+    recarregarSiCal();
   });
 
   // Registre
@@ -109,15 +120,15 @@ function initAuthUI() {
     if (!res.ok) { errorEl.textContent = data.error; return; }
     modal.style.display = 'none';
     mostrarLogout(data.username);
-    if (window.location.pathname.includes('panellUsuari')) window.location.reload();
+    recarregarSiCal();
   });
 
   // Logout
   btnLogout.addEventListener('click', async () => {
     await fetch('/api/logout', { method: 'POST' });
     mostrarLogin();
-    if (window.location.pathname.includes('panellUsuari') ||
-        window.location.pathname.includes('createObject')) {
+    const path = window.location.pathname;
+    if (path.includes('panellUsuari') || path.includes('createObject')) {
       window.location.href = '/index.html';
     } else {
       window.location.reload();

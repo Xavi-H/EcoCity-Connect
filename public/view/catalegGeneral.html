@@ -58,6 +58,25 @@
     </div>
 </div>
 
+<!-- Modal sol·licitar producte-->
+<div id="modal-solicitar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:8000;align-items:center;justify-content:center;">
+    <div class="modal-auth-box">
+        <button id="btn-tancar-solicitar" class="modal-close-btn" style="position:absolute;top:.75rem;right:.75rem;">✕</button>
+        <h3>📩 Sol·licitar objecte</h3>
+        <p id="solicitar-nom-objecte" style="font-weight:600; color:var(--color-primary); margin:.25rem 0 .75rem;"></p>
+        <input type="hidden" id="solicitar-object-id">
+        <div style="display:flex;flex-direction:column;gap:.6rem;">
+            <label>Missatge (opcional)</label>
+            <textarea id="solicitar-missatge" rows="3" placeholder="Explica per a quin ús el necessites, dates aproximades..."></textarea>
+            <p id="solicitar-error" class="form-error"></p>
+            <div style="display:flex;gap:.5rem;">
+                <button id="btn-confirmar-solicitar" class="btn-primary">Enviar sol·licitud</button>
+                <button id="btn-cancel-solicitar">Cancel·lar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 let totsElsObjectes = [];
 let sessioUserId = null;
@@ -102,10 +121,11 @@ function renderitzarObjectes(llista) {
                 <p><strong>Categoria:</strong> ${obj.categoria} &nbsp;|&nbsp; <strong>CP:</strong> ${obj.cp}</p>
                 <p class="estat estat-${obj.estat}">${obj.estat.toUpperCase()}</p>
                 <div class="card-accions">
+                    <a href="detallsProducte.html?id=${obj.id}" class="btn-detalls">🔍 Veure detalls</a>
                     ${esMeu
                         ? `<button class="btn-editar"   data-id="${obj.id}">✏️ Editar</button>
                            <button class="btn-eliminar" data-id="${obj.id}">🗑️ Eliminar</button>`
-                        : `<button class="btn-sol-licitar" data-id="${obj.id}" ${obj.estat !== 'disponible' ? 'disabled' : ''}>📩 Sol·licitar</button>`
+                        : `<button class="btn-sol-licitar" data-id="${obj.id}" data-nom="${obj.nom}" ${obj.estat !== 'disponible' ? 'disabled' : ''}>📩 Sol·licitar</button>`
                     }
                 </div>
             </div>`;
@@ -114,12 +134,63 @@ function renderitzarObjectes(llista) {
             card.querySelector('.btn-editar').addEventListener('click',   () => obrirModal(obj.id));
             card.querySelector('.btn-eliminar').addEventListener('click', () => eliminar(obj.id, obj.nom));
         } else {
-            card.querySelector('.btn-sol-licitar').addEventListener('click', () =>
-                alert(`Sol·licitud enviada per "${obj.nom}"!\n(Funcionalitat en desenvolupament)`));
+            card.querySelector('.btn-sol-licitar').addEventListener('click', () => obrirModalSolicitar(obj.id, obj.nom));
         }
         cont.appendChild(card);
     });
 }
+
+// Sol·licitar producte
+function obrirModalSolicitar(objectId, nomObjecte) {
+    // Si no ha iniciat sessió, obrim el modal d'auth que ja existeix al header
+    if (!sessioUserId) {
+        const btnAuth = document.getElementById('btn-obrir-auth');
+        if (btnAuth) btnAuth.click();
+        return;
+    }
+    document.getElementById('solicitar-object-id').value = objectId;
+    document.getElementById('solicitar-nom-objecte').textContent = nomObjecte;
+    document.getElementById('solicitar-missatge').value = '';
+    document.getElementById('solicitar-error').textContent = '';
+    document.getElementById('modal-solicitar').style.display = 'flex';
+}
+
+document.getElementById('btn-tancar-solicitar').addEventListener('click', () => {
+    document.getElementById('modal-solicitar').style.display = 'none';
+});
+document.getElementById('btn-cancel-solicitar').addEventListener('click', () => {
+    document.getElementById('modal-solicitar').style.display = 'none';
+});
+document.getElementById('modal-solicitar').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-solicitar'))
+        document.getElementById('modal-solicitar').style.display = 'none';
+});
+
+document.getElementById('btn-confirmar-solicitar').addEventListener('click', async () => {
+    const objectId = parseInt(document.getElementById('solicitar-object-id').value);
+    const missatge = document.getElementById('solicitar-missatge').value.trim();
+    const errorEl  = document.getElementById('solicitar-error');
+    errorEl.textContent = '';
+
+    const res = await fetch('/api/solicituds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ object_id: objectId, missatge })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+        errorEl.textContent = data.error;
+        return;
+    }
+
+    document.getElementById('modal-solicitar').style.display = 'none';
+
+    // Mostrar confirmació i oferir anar a solicituds
+    const anar = confirm(`✅ Sol·licitud enviada correctament!\n\nVols veure les teves sol·licituds?`);
+    if (anar) window.location.href = '/view/solicituds.html';
+});
+
 
 function omplirSelectCategories() {
     const sel = document.getElementById('filtre-categoria');

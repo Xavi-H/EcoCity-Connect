@@ -175,6 +175,20 @@
 }
 .btn-editar   { background:#e9ecef; }
 .btn-eliminar { background:#ffe0e0; color:#c1121f; }
+.btn-detalls {
+    display: inline-block;
+    background: #e8f4f0;
+    color: #2d6a4f;
+    border: 1px solid #b7d9cc;
+    border-radius: 6px;
+    padding: .35rem .75rem;
+    font-size: .82rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s;
+}
+.btn-detalls:hover { background: #d0ece3; }
 
 .estat { font-size:.78rem; font-weight:700; display:inline-block; padding:.2rem .5rem; border-radius:4px; margin-top:.25rem; }
 .estat-disponible { background:#d8f3dc; color:#1b4332; }
@@ -214,3 +228,63 @@
 .estat-badge-pendent   { background:#fff3cd; color:#856404; }
 .estat-badge-acceptada { background:#d8f3dc; color:#1b4332; }
 .estat-badge-rebutjada { background:#fde2e4; color:#c1121f; }
+
+.detall-container {
+  max-width: 700px;
+  margin: 2rem auto;
+  background: var(--color-card, #fff);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.1);
+  overflow: hidden;
+}
+.detall-imatge {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  display: block;
+  background: #f1f3f5;
+}
+.detall-imatge-placeholder {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  background: #f1f3f5;
+}
+.detall-cos {
+  padding: 1.5rem 2rem 2rem;
+}
+.detall-cos h2 {
+  margin: 0 0 .5rem;
+  font-size: 1.6rem;
+}
+.detall-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.5rem;
+  font-size: .92rem;
+  color: #555;
+  margin-bottom: 1.25rem;
+}
+.detall-descripcio {
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+.detall-accions {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.detall-propietari {
+  font-size: .88rem;
+  color: #6c757d;
+  border-top: 1px solid #dee2e6;
+  padding-top: .75rem;
+  margin-top: 1.25rem;
+}
+#sol-licitar-error { color: #dc3545; font-size: .88rem; margin-top: .4rem; }
+#missatge-solicitar-area { width: 100%; box-sizing: border-box; padding: .5rem; border: 1px solid #ced4da; border-radius: 6px; font-size: .95rem; resize: vertical; }
