@@ -3,9 +3,10 @@ DROP TABLE IF EXISTS objects;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    username      TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    is_admin      INTEGER DEFAULT 0  -- 0 = usuari normal, 1 = administrador
 );
 
 CREATE TABLE objects (
@@ -28,7 +29,12 @@ CREATE TABLE solicituds (
     created_at TEXT DEFAULT (datetime('now'))
 );
 
--- Dades inicials (user_id NULL = objectes de mostra sense propietari)
+-- Admin per defecte: usuari "admin", contrasenya "admin1234"
+-- Hash generat amb bcryptjs (cost 10)
+INSERT INTO users (username, password_hash, is_admin)
+VALUES ('admin', '$2b$10$Jei4lQxTRe6eoRSVcBUjZuu5df5Qqgp2XLLE4zMup/UbtbC3iG2Mm', 1);
+
+-- Dades inicials (user_id NULL = objectes de mostra sense propietari real)
 INSERT INTO objects (nom, descripcio, categoria, cp, estat, imatge, user_id) VALUES ('Taladro', 'Taladro potent.', 'Eines', '08001', 'disponible', '', NULL);
 INSERT INTO objects (nom, descripcio, categoria, cp, estat, imatge, user_id) VALUES ('Bicicleta', 'Ideal per a fer una volta pel port.', 'Transport', '08003', 'prestat', '', NULL);
 INSERT INTO objects (nom, descripcio, categoria, cp, estat, imatge, user_id) VALUES ('Escala plegable', 'Escala d''alumini de 5 esglaons, lleugera i facil de guardar.', 'Eines', '08012', 'disponible', '', NULL);
