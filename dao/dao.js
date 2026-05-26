@@ -78,3 +78,73 @@ export const UserModel = {
         return valid ? { id: user.id, username: user.username } : null;
     }
 };
+
+export const SolicitudModel = {
+ 
+    // Crear una nova sol·licitud
+    async create(object_id, solicitant_id, missatge) {
+        const result = await db.run(
+            "INSERT INTO solicituds (object_id, solicitant_id, missatge) VALUES (?, ?, ?)",
+            [object_id, solicitant_id, missatge || '']
+        );
+        return { id: result.lastID, object_id, solicitant_id, missatge, estat: 'pendent' };
+    },
+ 
+    // Comprovar si ja existeix una sol·licitud pendent/acceptada per evitar duplicats
+    async existeix(object_id, solicitant_id) {
+        const row = await db.get(
+            "SELECT id FROM solicituds WHERE object_id = ? AND solicitant_id = ?",
+            [object_id, solicitant_id]
+        );
+        return !!row;
+    },
+ 
+    // Sol·licituds enviades per un usuari (les que ell ha fet)
+    async getBySolicitant(solicitant_id) {
+        return await db.all(`
+            SELECT s.id, s.estat, s.missatge, s.created_at,
+                   o.id AS object_id, o.nom, o.descripcio, o.categoria, o.cp, o.imatge, o.estat AS object_estat,
+                   u.username AS propietari
+            FROM solicituds s
+            JOIN objects o ON s.object_id = o.id
+            LEFT JOIN users u ON o.user_id = u.id
+            WHERE s.solicitant_id = ?
+            ORDER BY s.created_at DESC
+        `, [solicitant_id]);
+    },
+ 
+    // Sol·licituds rebudes: les dels objectes que pertanyen a l'usuari
+    async getByPropietari(propietari_id) {
+        return await db.all(`
+            SELECT s.id, s.estat, s.missatge, s.created_at,
+                   o.id AS object_id, o.nom, o.categoria, o.cp,
+                   u.username AS solicitant
+            FROM solicituds s
+            JOIN objects o ON s.object_id = o.id
+            JOIN users u ON s.solicitant_id = u.id
+            WHERE o.user_id = ?
+            ORDER BY s.created_at DESC
+        `, [propietari_id]);
+    },
+ 
+    // Canviar estat (acceptada / rebutjada) — només el propietari
+    async updateEstat(id, estat, propietari_id) {
+        const sol = await db.get(`
+            SELECT s.id FROM solicituds s
+            JOIN objects o ON s.object_id = o.id
+            WHERE s.id = ? AND o.user_id = ?
+        `, [id, propietari_id]);
+        if (!sol) return null;
+        await db.run("UPDATE solicituds SET estat = ? WHERE id = ?", [estat, id]);
+        return { id, estat };
+    },
+ 
+    // Cancel·lar — només el sol·licitant i si és pendent
+    async delete(id, solicitant_id) {
+        const result = await db.run(
+            "DELETE FROM solicituds WHERE id = ? AND solicitant_id = ? AND estat = 'pendent'",
+            [id, solicitant_id]
+        );
+        return result.changes > 0;
+    }
+};

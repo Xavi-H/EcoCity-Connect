@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS solicituds;
 DROP TABLE IF EXISTS objects;
 DROP TABLE IF EXISTS users;
 
@@ -16,6 +17,15 @@ CREATE TABLE objects (
     estat TEXT DEFAULT 'disponible',
     imatge TEXT,
     user_id INTEGER REFERENCES users(id)
+);
+
+CREATE TABLE solicituds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    object_id INTEGER NOT NULL REFERENCES objects(id) ON DELETE CASCADE,
+    solicitant_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    missatge TEXT,
+    estat TEXT DEFAULT 'pendent', -- pendent | acceptada | rebutjada
+    created_at TEXT DEFAULT (datetime('now'))
 );
 
 -- Dades inicials (user_id NULL = objectes de mostra sense propietari)
