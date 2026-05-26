@@ -1,3 +1,37 @@
+.header-auth {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-left: auto;
+}
+
+#nav-user-info {
+  font-size: .85rem;
+  color: #2d6a4f;
+  font-weight: 600;
+}
+
+.btn-auth {
+  padding: .35rem .75rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 600;
+  transition: background .2s;
+}
+
+.btn-login-header {
+  background: #2d6a4f;
+  color: #fff;
+}
+.btn-login-header:hover { background: #1b4332; }
+
+.btn-logout-header {
+  background: #e63946;
+  color: #fff;
+}
+.btn-logout-header:hover { background: #c1121f; }
 
 .btn-primary {
   background: #2d6a4f;
@@ -23,7 +57,7 @@
 .btn-sol-licitar:hover { background: #1d3557; }
 .btn-sol-licitar:disabled { background: #adb5bd; cursor: not-allowed; }
 
-/* objetos */
+/* Cards */
 .card-objeto {
   background: #fff;
   border: 1px solid #dee2e6;
@@ -54,4 +88,100 @@
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1.25rem;
   margin-top: 1rem;
+}
+
+/* ====== Auth modal ====== */
+.header-auth {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+#nav-user-info { font-size:.85rem; color:#2d6a4f; font-weight:600; }
+
+.btn-auth-header, .btn-logout-header {
+  padding:.35rem .8rem; border:none; border-radius:6px;
+  cursor:pointer; font-size:.85rem; font-weight:600;
+}
+.btn-auth-header   { background:#2d6a4f; color:#fff; }
+.btn-auth-header:hover { background:#1b4332; }
+.btn-logout-header { background:#e63946; color:#fff; }
+.btn-logout-header:hover { background:#c1121f; }
+
+.modal-auth-box {
+  background:#fff; border-radius:12px; padding:2rem;
+  min-width:320px; max-width:460px; width:90%;
+  box-shadow:0 8px 32px rgba(0,0,0,.2); position:relative;
+}
+.modal-close-btn {
+  position:absolute; top:1rem; right:1rem;
+  background:none; border:none; font-size:1.3rem; cursor:pointer; color:#666;
+}
+
+.auth-tabs { display:flex; gap:.5rem; margin-bottom:1.25rem; }
+.auth-tab {
+  flex:1; padding:.5rem; border:2px solid #dee2e6; border-radius:6px;
+  background:#f8f9fa; cursor:pointer; font-weight:600; transition:all .15s;
+}
+.auth-tab.activa { background:#2d6a4f; color:#fff; border-color:#2d6a4f; }
+
+.auth-form {
+  display:flex; flex-direction:column; gap:.65rem;
+}
+.auth-form label { font-size:.9rem; font-weight:600; color:#495057; }
+.auth-form input, .auth-form select, .auth-form textarea {
+  padding:.5rem .75rem; border:1px solid #ced4da; border-radius:6px; font-size:.95rem;
+}
+
+.form-error { color:#e63946; font-size:.88rem; margin:0; min-height:1.1rem; }
+
+/* Panell usuari */
+.panell-seccio { margin-bottom:2rem; }
+.panell-seccio form {
+  display:flex; flex-direction:column; gap:.65rem; max-width:480px;
+}
+.panell-seccio input, .panell-seccio select, .panell-seccio textarea {
+  padding:.5rem .75rem; border:1px solid #ced4da; border-radius:6px; font-size:.95rem;
+}
+
+/* Botons generals */
+.btn-primary {
+  background:#2d6a4f; color:#fff; border:none; border-radius:6px;
+  padding:.6rem 1rem; cursor:pointer; font-size:1rem; font-weight:600;
+}
+.btn-primary:hover { background:#1b4332; }
+.btn-primary:disabled { background:#adb5bd; cursor:not-allowed; }
+
+.btn-sol-licitar {
+  background:#457b9d; color:#fff; border:none; border-radius:6px;
+  padding:.35rem .7rem; cursor:pointer; font-size:.82rem;
+}
+.btn-sol-licitar:hover { background:#1d3557; }
+.btn-sol-licitar:disabled { background:#adb5bd; cursor:not-allowed; }
+
+/* Cards catàleg */
+.card-objeto {
+  background:#fff; border:1px solid #dee2e6; border-radius:10px;
+  overflow:hidden; display:flex; flex-direction:column;
+  box-shadow:0 2px 8px rgba(0,0,0,.07);
+}
+.card-cos { padding:1rem; flex:1; }
+.card-accions { margin-top:.75rem; display:flex; gap:.5rem; flex-wrap:wrap; }
+
+.btn-editar, .btn-eliminar {
+  border:none; border-radius:6px; padding:.35rem .65rem;
+  cursor:pointer; font-size:.82rem; font-weight:500;
+}
+.btn-editar   { background:#e9ecef; }
+.btn-eliminar { background:#ffe0e0; color:#c1121f; }
+
+.estat { font-size:.78rem; font-weight:700; display:inline-block; padding:.2rem .5rem; border-radius:4px; margin-top:.25rem; }
+.estat-disponible { background:#d8f3dc; color:#1b4332; }
+.estat-prestat    { background:#fde2e4; color:#c1121f; }
+
+#contenidor-objectes {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(240px,1fr));
+  gap:1.25rem; margin-top:1rem;
 }

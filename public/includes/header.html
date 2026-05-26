@@ -3,18 +3,53 @@
     <h1>EcoCity Connect</h1>
     <nav>
       <a href="/index.html">Home</a>
-      <a href="/view/catalegGeneral.html">Catàleg Productes</a>
+      <a href="/view/catalegGeneral.html">Catàleg</a>
       <a href="/view/createObject.html">Afegir objecte</a>
       <a href="/view/guiaEconomiaCircular.html">Guia Circular</a>
-      <a href="/view/analisiEmpresa.html">Analisi Empresa</a>
+      <a href="/view/analisiEmpresa.html">Anàlisi Empresa</a>
       <a href="/view/solicituds.html">Sol·licituds</a>
       <a href="/view/panellUsuari.html">Panell Usuari</a>
-      <a href="/view/preguntesFrequents.html">Preguntes Frequents</a>
-      <a href="/view/sobreMi.html">Sobre EcoCity Connect</a>
-      <a href="/view/detallsProducte.html">Detalls Producte</a>
-      <a href="/view/solicituds.html">Solicituds Productes</a>
-      <!-- Botó mode fosc: redueix el consum energètic de les pantalles -->
-      <button id="boto-mode-fosc" title="Activar/desactivar mode fosc (estalvi energètic)">🌙</button>
+      <a href="/view/preguntesFrequents.html">Preguntes Freq.</a>
+      <button id="boto-mode-fosc" title="Mode fosc">🌙</button>
     </nav>
+    <div class="header-auth">
+      <!-- Es omple per JS segons la sessió -->
+      <span id="nav-user-info"></span>
+      <button id="btn-obrir-auth" class="btn-auth-header">Entrar</button>
+      <button id="btn-logout" class="btn-logout-header" style="display:none">Sortir</button>
+    </div>
   </div>
 </header>
+
+<!-- Modal login / registre -->
+<div id="modal-auth" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
+  <div class="modal-auth-box">
+    <button id="btn-tancar-auth" class="modal-close-btn">✕</button>
+
+    <!-- Pestanyes -->
+    <div class="auth-tabs">
+      <button class="auth-tab activa" data-tab="login">Iniciar sessió</button>
+      <button class="auth-tab" data-tab="registre">Registrar-se</button>
+    </div>
+
+    <!-- Login -->
+    <form id="form-login" class="auth-form">
+      <label>Usuari</label>
+      <input id="login-username" type="text" placeholder="El teu usuari" autocomplete="username" required>
+      <label>Contrasenya</label>
+      <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" required>
+      <p id="login-error" class="form-error"></p>
+      <button type="submit" class="btn-primary">Iniciar sessió</button>
+    </form>
+
+    <!-- Registre -->
+    <form id="form-registre" class="auth-form" style="display:none">
+      <label>Usuari</label>
+      <input id="reg-username" type="text" placeholder="Tria un nom d'usuari" required>
+      <label>Contrasenya</label>
+      <input id="reg-password" type="password" placeholder="Mínim 4 caràcters" required>
+      <p id="reg-error" class="form-error"></p>
+      <button type="submit" class="btn-primary">Crear compte</button>
+    </form>
+  </div>
+</div>

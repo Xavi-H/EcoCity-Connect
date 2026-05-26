@@ -1,13 +1,219 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panell Usuari - EcoCity Connect</title>
-    <script src="./../components.js"></script>
+    <link rel="stylesheet" href="./../style/style.css">
+    <script src="./../components.js" defer></script>
+    <script src="./../modeFosc.js" defer></script>
 </head>
-    <body>
+<body>
+<main>
+    <!-- Estat: no logejat -->
+    <div id="vista-no-login" style="display:none; text-align:center; padding:3rem 1rem;">
+        <p style="font-size:1.2rem;">Has d'iniciar sessió per veure el teu panell.</p>
+        <p>Fes clic a <strong>🔑 Entrar</strong> a la barra superior.</p>
+    </div>
 
+    <!-- Estat: logejat -->
+    <div id="vista-panell" style="display:none;">
+        <h2>👤 Hola, <span id="panell-username"></span>!</h2>
 
-    </body>
+        <!-- Formulari crear objecte -->
+        <section class="panell-seccio">
+            <h3>➕ Publicar un objecte nou</h3>
+            <form id="form-crear">
+                <input type="text"     id="crear-nom"       placeholder="Nom *" required>
+                <textarea              id="crear-descripcio" placeholder="Descripció" rows="2"></textarea>
+                <input type="text"     id="crear-categoria"  placeholder="Categoria *" required>
+                <input type="text"     id="crear-cp"         placeholder="Codi Postal *" maxlength="5" required>
+                <select id="crear-estat">
+                    <option value="disponible">Disponible</option>
+                    <option value="prestat">Prestat</option>
+                </select>
+                <input type="text"     id="crear-imatge"     placeholder="URL imatge (opcional)">
+                <p id="crear-error" class="form-error"></p>
+                <p id="crear-ok"    style="color:#2d6a4f;display:none;">✅ Objecte publicat!</p>
+                <button type="submit" class="btn-primary">Publicar objecte</button>
+            </form>
+        </section>
+
+        <hr>
+
+        <!-- Llista objectes de l'usuari -->
+        <section class="panell-seccio">
+            <h3>📦 Els meus objectes</h3>
+            <p id="meus-carregant">Carregant...</p>
+            <div id="meus-contenidor"></div>
+        </section>
+    </div>
+
+    <!-- Modal editar -->
+    <div id="modal-editar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:8000;align-items:center;justify-content:center;">
+        <div class="modal-auth-box">
+            <h3>✏️ Editar objecte</h3>
+            <form id="form-editar">
+                <input type="hidden" id="edit-id">
+                <label>Nom *</label>
+                <input type="text" id="edit-nom" required>
+                <label>Descripció</label>
+                <textarea id="edit-descripcio" rows="2"></textarea>
+                <label>Categoria *</label>
+                <input type="text" id="edit-categoria" required>
+                <label>CP *</label>
+                <input type="text" id="edit-cp" maxlength="5" required>
+                <label>Estat</label>
+                <select id="edit-estat">
+                    <option value="disponible">Disponible</option>
+                    <option value="prestat">Prestat</option>
+                </select>
+                <label>URL Imatge</label>
+                <input type="text" id="edit-imatge" placeholder="https://...">
+                <p id="edit-error" class="form-error"></p>
+                <div style="display:flex;gap:.5rem;">
+                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" id="btn-cancel-edit">Cancel·lar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+let meusObjectes = [];
+
+async function inicialitzar() {
+    const res = await fetch('/api/me');
+    const sessio = await res.json();
+
+    if (!sessio.loggedIn) {
+        document.getElementById('vista-no-login').style.display = 'block';
+        return;
+    }
+
+    document.getElementById('vista-panell').style.display = 'block';
+    document.getElementById('panell-username').textContent = sessio.username;
+    carregarObjectes();
+}
+
+async function carregarObjectes() {
+    const el = document.getElementById('meus-carregant');
+    el.style.display = 'block';
+    el.textContent = 'Carregant...';
+    try {
+        const res = await fetch('/api/objects/meus');
+        if (!res.ok) throw new Error((await res.json()).error);
+        meusObjectes = await res.json();
+        el.style.display = 'none';
+        renderitzar();
+    } catch (err) {
+        el.textContent = 'Error: ' + err.message;
+    }
+}
+
+function renderitzar() {
+    const cont = document.getElementById('meus-contenidor');
+    cont.innerHTML = '';
+    if (meusObjectes.length === 0) {
+        cont.innerHTML = '<p>Encara no tens cap objecte publicat.</p>';
+        return;
+    }
+    meusObjectes.forEach(obj => {
+        const card = document.createElement('article');
+        card.className = 'card-objeto';
+        card.innerHTML = `
+            <img src="${obj.imatge || ''}" alt="${obj.nom}" onerror="this.style.display='none'">
+            <div class="card-cos">
+                <h3>${obj.nom}</h3>
+                <p>${obj.descripcio || ''}</p>
+                <p><strong>Categoria:</strong> ${obj.categoria} &nbsp;|&nbsp; <strong>CP:</strong> ${obj.cp}</p>
+                <p class="estat estat-${obj.estat}">${obj.estat.toUpperCase()}</p>
+                <div class="card-accions">
+                    <button class="btn-editar" data-id="${obj.id}">✏️ Editar</button>
+                    <button class="btn-eliminar" data-id="${obj.id}">🗑️ Eliminar</button>
+                </div>
+            </div>`;
+        card.querySelector('.btn-editar').addEventListener('click',  () => obrirEditar(obj.id));
+        card.querySelector('.btn-eliminar').addEventListener('click', () => eliminar(obj.id, obj.nom));
+        cont.appendChild(card);
+    });
+}
+
+// CREAR
+document.getElementById('form-crear').addEventListener('submit', async e => {
+    e.preventDefault();
+    const errorEl = document.getElementById('crear-error');
+    const okEl    = document.getElementById('crear-ok');
+    errorEl.textContent = '';
+    okEl.style.display  = 'none';
+
+    const body = {
+        nom:        document.getElementById('crear-nom').value.trim(),
+        descripcio: document.getElementById('crear-descripcio').value.trim(),
+        categoria:  document.getElementById('crear-categoria').value.trim(),
+        cp:         document.getElementById('crear-cp').value.trim(),
+        estat:      document.getElementById('crear-estat').value,
+        imatge:     document.getElementById('crear-imatge').value.trim()
+    };
+
+    const res  = await fetch('/api/objects', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) { errorEl.textContent = data.error; return; }
+
+    okEl.style.display = 'block';
+    e.target.reset();
+    await carregarObjectes();
+    setTimeout(() => okEl.style.display = 'none', 2500);
+});
+
+// EDITAR
+function obrirEditar(id) {
+    const obj = meusObjectes.find(o => o.id === id);
+    if (!obj) return;
+    document.getElementById('edit-id').value          = obj.id;
+    document.getElementById('edit-nom').value         = obj.nom;
+    document.getElementById('edit-descripcio').value  = obj.descripcio || '';
+    document.getElementById('edit-categoria').value   = obj.categoria;
+    document.getElementById('edit-cp').value          = obj.cp;
+    document.getElementById('edit-estat').value       = obj.estat;
+    document.getElementById('edit-imatge').value      = obj.imatge || '';
+    document.getElementById('edit-error').textContent = '';
+    document.getElementById('modal-editar').style.display = 'flex';
+}
+
+document.getElementById('btn-cancel-edit').addEventListener('click', () => {
+    document.getElementById('modal-editar').style.display = 'none';
+});
+
+document.getElementById('form-editar').addEventListener('submit', async e => {
+    e.preventDefault();
+    const id      = parseInt(document.getElementById('edit-id').value);
+    const errorEl = document.getElementById('edit-error');
+    const body    = {
+        nom:        document.getElementById('edit-nom').value.trim(),
+        descripcio: document.getElementById('edit-descripcio').value.trim(),
+        categoria:  document.getElementById('edit-categoria').value.trim(),
+        cp:         document.getElementById('edit-cp').value.trim(),
+        estat:      document.getElementById('edit-estat').value,
+        imatge:     document.getElementById('edit-imatge').value.trim()
+    };
+    const res  = await fetch(`/api/objects/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) { errorEl.textContent = data.error; return; }
+    document.getElementById('modal-editar').style.display = 'none';
+    await carregarObjectes();
+});
+
+// ELIMINAR
+async function eliminar(id, nom) {
+    if (!confirm(`Eliminar "${nom}"?`)) return;
+    const res = await fetch(`/api/objects/${id}`, { method:'DELETE' });
+    if (!res.ok) { alert((await res.json()).error); return; }
+    await carregarObjectes();
+}
+
+document.addEventListener('DOMContentLoaded', inicialitzar);
+</script>
+</body>
 </html>
