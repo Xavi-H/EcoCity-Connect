@@ -5,7 +5,7 @@ import { ObjectModel } from "./dao/dao.js";
 
 // Necesario para usar __dirname con ES Modules
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(__filename); // __dirname es la carpeta actual
 
 const APP = express(); // Aquest es el servidor web
 const PORT = 3000; // El port que escoltara el servidor
@@ -16,22 +16,11 @@ APP.use(express.json()); // Para que el servidor pueda leer datos JSON para las 
 APP.use(express.static('public')); // fa que la carpeta public sigui visible al servidor
 
 
-const readData=()=>{
-    try{
-        const DATA=fs.readFileSync("./objects.json"); // llegueix el contingut
-        return JSON.parse(DATA) // tradueix el contingut de l'arxiu
-    }catch(error){
-        console.log(error);
-        return []; // En cas de que falli, retorna un array buit
-    }
-};
-
-
 // ==== Endpoints (API REST) ====
 
 // Mostrara l'index.html quan es consulti l'arrel
 APP.get('/', (req, res) => {
-    res.sendFile(path.resolve('./public/index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // GET /api/objects → Obtener todos los objetos

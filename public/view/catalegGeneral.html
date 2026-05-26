@@ -3,12 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCity Connect</title>
-    <script src="./../components.js"></script>
-    <script src="./../js/scripts.js"></script>
+    <title>Catàleg General - EcoCity Connect</title>
+    <link rel="stylesheet" href="./../style/style.css">
+    <script src="./../components.js" defer></script>
+    <script src="./../modeFosc.js" defer></script>
 </head>
-    <body>
-        <div id="contenedor-objetos"></div>
-        <div id="mensaje-carga">Cargando...</div>
-    </body>
+<body>
+    <main>
+    <h2>Catàleg d'objectes</h2>
+
+    <!-- Zona de filtres -->
+    <section id="zona-filtres">
+        <label for="filtre-categoria">Filtrar per categoria:</label>
+        <select id="filtre-categoria">
+            <option value="">Totes les categories</option>
+        </select>
+
+        <label for="filtre-estat">Filtrar per estat:</label>
+        <select id="filtre-estat">
+            <option value="">Tots els estats</option>
+            <option value="disponible">Disponible</option>
+            <option value="prestat">Prestat</option>
+        </select>
+
+        <label for="filtre-cerca">Cercar per nom:</label>
+        <input type="text" id="filtre-cerca" placeholder="Escriu per cercar...">
+
+        <button id="btn-netejar-filtres">Netejar filtres</button>
+    </section>
+
+    <!-- Contador de resultats -->
+    <p id="comptador-resultats"></p>
+
+    <!-- Missatge de càrrega / error -->
+    <p id="missatge-carrega">Carregant objectes...</p>
+
+    <!-- Contenidor dels objectes -->
+    <div id="contenidor-objectes"></div>
+    </main>
+ 
+ 
+    <!-- Per editar -->
+    <div id="modal-editar" style="display:none;">
+        <div id="modal-contingut">
+            <h3>Editar objecte</h3>
+            <form id="formulari-editar">
+                <input type="hidden" id="edit-id">
+ 
+                <label for="edit-nom">Nom *</label>
+                <input type="text" id="edit-nom" required>
+ 
+                <label for="edit-descripcio">Descripció</label>
+                <textarea id="edit-descripcio" rows="3"></textarea>
+ 
+                <label for="edit-categoria">Categoria *</label>
+                <input type="text" id="edit-categoria" required>
+ 
+                <label for="edit-cp">Codi postal *</label>
+                <input type="text" id="edit-cp" required maxlength="5">
+ 
+                <label for="edit-estat">Estat</label>
+                <select id="edit-estat">
+                    <option value="disponible">Disponible</option>
+                    <option value="prestat">Prestat</option>
+                </select>
+ 
+                <label for="edit-imatge">URL Imatge</label>
+                <input type="text" id="edit-imatge" placeholder="https://...">
+ 
+                <div id="edit-errors" style="display:none;"></div>
+ 
+                <div id="edit-botons">
+                    <button type="submit">Guardar canvis</button>
+                    <button type="button" id="btn-cancel-editar">Cancel·lar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Fons fosc del modal -->
+    <div id="modal-fons" style="display:none;"></div>
+ 
+ 
+    <script>
+    // Aqui es guarden tots els objectes despres d'una peticio per poder filtrar sense fer masses peticions al servidor
+    let totsElsObjectes = [];
+ 
+    // Tots els objectes de la API 
+    async function carregarObjectes() {
+        const missatge = document.getElementById('missatge-carrega');
+        missatge.textContent = 'Carregant objectes...';
+        missatge.style.display = 'block';
+ 
+        try {
+            const resposta = await fetch('/api/objects');
+            if (!resposta.ok) throw new Error('Error de servidor: ' + resposta.status);
+ 
+            totsElsObjectes = await resposta.json();
+ 
+            missatge.style.display = 'none';
+            omplirSelectCategories();
+            renderitzarObjectes(totsElsObjectes);
+ 
+        } catch (error) {
+            console.error('Error carregant la API:', error);
+            missatge.textContent = 'Error al carregar les dades. Comprova que el servidor està actiu.';
+        }
+    }
+ 
+ 
+    // Mostra els objectes al DOM
+    function renderitzarObjectes(llista) {
+        const contenidor = document.getElementById('contenidor-objectes');
+        const comptador = document.getElementById('comptador-resultats');
+ 
+        contenidor.innerHTML = '';
+        comptador.textContent = `Mostrant ${llista.length} objecte${llista.length !== 1 ? 's' : ''}`;
+ 
+        if (llista.length === 0) {
+            contenidor.innerHTML = '<p>No s\'han trobat objectes amb aquests filtres.</p>';
+            return;
+        }
+ 
+        llista.forEach(obj => {
+            const card = document.createElement('article');
+            card.className = 'card-objeto';
+            card.dataset.id = obj.id;
+ 
+            card.innerHTML = `
+                <img src="${obj.imatge || ''}" alt="${obj.nom}" onerror="this.style.display='none'">
+                <div class="card-cos">
+                    <h3>${obj.nom}</h3>
+                    <p>${obj.descripcio || ''}</p>
+                    <p><strong>Categoria:</strong> ${obj.categoria}</p>
+                    <p><strong>CP:</strong> ${obj.cp}</p>
+                    <p class="estat estat-${obj.estat}">${obj.estat.toUpperCase()}</p>
+                    <div class="card-accions">
+                        <button class="btn-editar" data-id="${obj.id}">✏️ Editar</button>
+                        <button class="btn-eliminar" data-id="${obj.id}">🗑️ Eliminar</button>
+                    </div>
+                </div>
+            `;
+ 
+            // Afegir event listeners als botons d'aquesta card
+            card.querySelector('.btn-editar').addEventListener('click', () => obrirModalEditar(obj.id));
+            card.querySelector('.btn-eliminar').addEventListener('click', () => eliminarObjecte(obj.id, obj.nom));
+ 
+            contenidor.appendChild(card);
+        });
+    }
+ 
+ 
+    // Aplica els 3 filtres (categoria, estat, cerca de text)
+    // sobre l'array local totsElsObjectes sense fer fetch
+    function aplicarFiltres() {
+        const categoria = document.getElementById('filtre-categoria').value;
+        const estat = document.getElementById('filtre-estat').value;
+        const cerca = document.getElementById('filtre-cerca').value.toLowerCase().trim();
+ 
+        const resultat = totsElsObjectes.filter(obj => {
+            const coincideixCategoria = !categoria || obj.categoria === categoria;
+            const coincideixEstat = !estat || obj.estat === estat;
+            const coincideixCerca = !cerca || obj.nom.toLowerCase().includes(cerca) || (obj.descripcio || '').toLowerCase().includes(cerca);
+            return coincideixCategoria && coincideixEstat && coincideixCerca;
+        });
+        renderitzarObjectes(resultat);
+    }
+ 
+    function omplirSelectCategories() {
+        const select = document.getElementById('filtre-categoria');
+        // Extraure categories úniques de l'array
+        const categories = [...new Set(totsElsObjectes.map(o => o.categoria))].sort();
+        categories.forEach(cat => {
+            const opcio = document.createElement('option');
+            opcio.value = cat;
+            opcio.textContent = cat;
+            select.appendChild(opcio);
+        });
+    }
+ 
+    function netejarFiltres() {
+        document.getElementById('filtre-categoria').value = '';
+        document.getElementById('filtre-estat').value = '';
+        document.getElementById('filtre-cerca').value = '';
+        renderitzarObjectes(totsElsObjectes);
+    }
+ 
+    // Eliminar objecte — DELETE /api/objects/:id
+    async function eliminarObjecte(id, nom) {
+        // Confirmació abans d'esborrar
+        const confirmat = confirm(`Segur que vols eliminar "${nom}"?\nAquesta acció no es pot desfer.`);
+        if (!confirmat) return;
+ 
+        try {
+            const resposta = await fetch(`/api/objects/${id}`, {
+                method: 'DELETE'
+            });
+ 
+            if (!resposta.ok) {
+                const error = await resposta.json();
+                throw new Error(error.error || 'Error eliminant el objecte');
+            }
+ 
+            // Treure l'objecte de l'array local i redibuixar
+            totsElsObjectes = totsElsObjectes.filter(o => o.id !== id);
+            aplicarFiltres(); // Recarrega amb els filtres actuals
+ 
+        } catch (error) {
+            console.error('Error eliminant:', error);
+            alert('No s\'ha pogut eliminar l\'objecte: ' + error.message);
+        }
+    }
+
+
+    // Editar objecte
+    function obrirModalEditar(id) {
+        const obj = totsElsObjectes.find(o => o.id === id);
+        if (!obj) return;
+ 
+        // Omplir els camps del formulari amb les dades actuals
+        document.getElementById('edit-id').value = obj.id;
+        document.getElementById('edit-nom').value = obj.nom;
+        document.getElementById('edit-descripcio').value = obj.descripcio || '';
+        document.getElementById('edit-categoria').value = obj.categoria;
+        document.getElementById('edit-cp').value = obj.cp;
+        document.getElementById('edit-estat').value = obj.estat;
+        document.getElementById('edit-imatge').value = obj.imatge || '';
+        document.getElementById('edit-errors').style.display = 'none';
+ 
+        // Mostrar modal i fons
+        document.getElementById('modal-editar').style.display = 'block';
+        document.getElementById('modal-fons').style.display = 'block';
+    }
+ 
+    function tancarModal() {
+        document.getElementById('modal-editar').style.display = 'none';
+        document.getElementById('modal-fons').style.display = 'none';
+    }
+ 
+ 
+    // Guardar objecte editat — PUT /api/objects/:id
+    async function guardarEdicio(event) {
+        event.preventDefault(); // No recarregar la pàgina
+ 
+        const id = parseInt(document.getElementById('edit-id').value);
+        const nom = document.getElementById('edit-nom').value.trim();
+        const descripcio = document.getElementById('edit-descripcio').value.trim();
+        const categoria = document.getElementById('edit-categoria').value.trim();
+        const cp = document.getElementById('edit-cp').value.trim();
+        const estat = document.getElementById('edit-estat').value;
+        const imatge = document.getElementById('edit-imatge').value.trim();
+ 
+        // Validació client
+        const errorDiv = document.getElementById('edit-errors');
+        if (!nom || !categoria || !cp) {
+            errorDiv.textContent = 'Els camps Nom, Categoria i CP són obligatoris.';
+            errorDiv.style.display = 'block';
+            return;
+        }
+ 
+        try {
+            const resposta = await fetch(`/api/objects/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nom, descripcio, categoria, cp, estat, imatge })
+            });
+ 
+            if (!resposta.ok) {
+                const error = await resposta.json();
+                throw new Error(error.error || 'Error actualitzant');
+            }
+ 
+            const objecteActualitzat = await resposta.json();
+ 
+            // Actualitzar l'array local amb les noves dades
+            const index = totsElsObjectes.findIndex(o => o.id === id);
+            if (index !== -1) totsElsObjectes[index] = objecteActualitzat;
+ 
+            tancarModal();
+            aplicarFiltres(); // Redibuixa respectant filtres actuals
+ 
+        } catch (error) {
+            console.error('Error guardant:', error);
+            const errorDiv = document.getElementById('edit-errors');
+            errorDiv.textContent = 'Error: ' + error.message;
+            errorDiv.style.display = 'block';
+        }
+    }
+ 
+    // EVENT LISTENERS
+    document.getElementById('filtre-categoria').addEventListener('change', aplicarFiltres);
+    document.getElementById('filtre-estat').addEventListener('change', aplicarFiltres);
+    // Filtre de text: s'activa mentre l'usuari escriu (event 'input')
+    document.getElementById('filtre-cerca').addEventListener('input', aplicarFiltres);
+    document.getElementById('btn-netejar-filtres').addEventListener('click', netejarFiltres);
+    document.getElementById('btn-cancel-editar').addEventListener('click', tancarModal);
+    document.getElementById('modal-fons').addEventListener('click', tancarModal);
+    document.getElementById('formulari-editar').addEventListener('submit', guardarEdicio);
+ 
+    // Carrega els objectes quan es carregui el DOM
+    document.addEventListener('DOMContentLoaded', carregarObjectes);
+    </script>
+ 
+</body>
 </html>
