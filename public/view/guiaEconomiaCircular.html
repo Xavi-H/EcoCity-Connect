@@ -1,58 +1,138 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guia d'Economia Circular i ODS - EcoCity Connect</title>
     <link rel="stylesheet" href="./../style/style.css">
-    <script src="./../components.js"></script>
+    <script src="./../components.js" defer></script>
+    <script src="./../modeFosc.js" defer></script>
 </head>
-    <body>
-        <main>
-            <section>
-                <h1>Guia d'Economia Circular i Compromís amb els ODS</h1>
-                <p>A EcoCity Connect creiem que el futur de les nostres ciutats depèn de com gestionem els recursos actuals. Aquesta guia explica com la nostra plataforma de préstec entre veïns es basa en l'economia circular i quins Objectius de Desenvolupament Sostenible (ODS) de l'Agenda 2030 estem complint directament.</p>
-            </section>
+<body>
+<main>
 
-            <section>
-                <h2>Què és l'Economia Circular?</h2>
-                <p>L'economia circular és un model de producció i consum que implica compartir, llogar, reutilitzar, reparar, renovar i reciclar materials i productes existents totes les vegades que sigui possible per afegir un valor invers. D'aquesta manera, el cicle de vida dels productes s'allarga.</p>
-                <p>A la pràctica, implica reduir els residus al mínim. Quan un producte arriba al final de la seva vida útil, els seus materials es mantenen dins de l'economia sempre que sigui possible, creant un valor addicional.</p>
-            </section>
+    <!-- 1. INTRODUCCIÓ I ODS                                  -->
+    <section>
+        <h1>Guia d'Economia Circular i Compromís ODS</h1>
+        <p>A EcoCity Connect creiem que el futur sostenible de les nostres ciutats depèn de com gestionem els recursos que ja tenim. Aquesta guia explica com la nostra plataforma de préstec entre veïns s'inscriu en l'economia circular i quins Objectius de Desenvolupament Sostenible (ODS) de l'Agenda 2030 estem complint directament.</p>
+    </section>
 
-            <section>
-                <h2>Els ODS implicats en el nostre projecte</h2>
-                <p>L'aplicació EcoCity Connect no és només una eina informàtica; és una solució tecnològica dissenyada per impactar positivament en els següents objectius globals:</p>
+    <section>
+        <h2>Problema real que resolem: l'hiperconsumisme de proximitat</h2>
+        <p>A qualsevol barri de Barcelona, milers de veïns posseeixen objectes d'ús esporàdic (taladres, tendes de campanya, màquines de cosir, projectors) que fan servir unes poques hores a l'any i que romanen inactius el 95% del temps. Alhora, els seus veïns compren exactament els mateixos objectes, generant un consum duplicat innecessari de matèries primeres, energia i residus.</p>
+        <p>Aquesta és la contradicció central de l'economia lineal (<em>fabrica → usa → llença</em>) que EcoCity Connect vol trencar.</p>
+    </section>
 
-                <article>
-                    <h3>ODS 12: Producció i Consum Responsables (Eix Principal)</h3>
-                    <p><strong>Objectiu de l'ODS:</strong> Garantir modalitats de consum i producció sostenibles, reduint la petjada ecològica mitjançant un canvi en mètodes de producció i consum de béns.</p>
-                    <p><strong>Com ho compleix EcoCity Connect?</strong> La nostra plataforma ataca directament l'hiperconsumisme. En lloc de fer que cada veí compri eines o objectes d'ús esporàdic (com un taladre o una tenda de campanya), fomentem el préstec col·laboratiu. Això redueix la demanda de fabricació de nous productes, estalviant matèries primeres, aigua i energia, i disminuint la generació de residus.</p>
-                </article>
+    <section>
+        <h2>Què és l'Economia Circular?</h2>
+        <p>L'economia circular és un model alternatiu que allarga el cicle de vida dels productes: compartir, llogar, reutilitzar, reparar i reciclar. En lloc de llençar un objecte quan ja no el necessites, es posa de nou en circulació.</p>
+        <p>EcoCity Connect aplica els tres primers nivells d'aquesta piràmide al barri: <strong>compartir → reutilitzar → allargar la vida útil</strong>. Un taladre que es presta 20 vegades al any evita la fabricació de 20 taladres nous.</p>
+    </section>
 
-                <article>
-                    <h3>ODS 11: Ciutats i Comunitats Sostenibles</h3>
-                    <p><strong>Objectiu de l'ODS:</strong> Aconseguir que les ciutats i els assentaments humans siguin inclusius, segurs, resilients i sostenibles.</p>
-                    <p><strong>Com ho compleix EcoCity Connect?</strong> En limitar la cerca d'objectes per codi postal o barri, estem impulsant les comunitats de proximitat. Menys persones desplaçant-se lluny o demanant enviaments de paqueteria massiva es tradueix en menys furgonetes circulant, reduint la contaminació acústica i l'emissió de gasos de efecte hivernacle (GEH) a la ciutat de Barcelona.</p>
-                </article>
+    <section>
+        <h2>Els ODS implicats</h2>
 
-                <article>
-                    <h3>ODS 9: Indústria, Innovació i Infraestructura</h3>
-                    <p><strong>Objectiu de l'ODS:</strong> Desenvolupar infraestructures resilients, promoure la industrialització inclusiva i sostenible, i fomentar la innovació.</p>
-                    <p><strong>Com ho compleix EcoCity Connect?</strong> Apliquem la tecnologia (una API REST eficient amb Node.js i Express) per crear una infraestructura digital d'innovació social. Demostrem que el programari pot servir com una eina d'optimització de recursos físics ja existents.</p>
-                </article>
-            </section>
+        <article>
+            <h3>🎯 ODS 12 — Producció i Consum Responsables (Eix Principal)</h3>
+            <p><strong>Com ho compleix EcoCity Connect?</strong> La plataforma ataca directament l'hiperconsumisme de proximitat. En lloc de que cada veí compri eines o objectes d'ús puntual, fomentem el préstec col·laboratiu. Cada préstec evita una compra, reduint la demanda de fabricació, el consum de matèries primeres i la generació de residus.</p>
+        </article>
 
-            <section>
-                <h2>El nostre compromís amb la Sostenibilitat Digital (RA5)</h2>
-                <p>No només som sostenibles en el món real; també ho som a la xarxa. Aquesta pàgina web està optimitzada per reduir la seva petjada de carboni digital:</p>
-                <ul>
-                    <li><strong>Eficiència de dades:</strong> Fem servir una API pròpia que transmet només les dades JSON estrictament necessàries, evitant sobrecarregar la xarxa.</li>
-                    <li><strong>Mode Fosc:</strong> Redueix el consum d'energia del teu dispositiu, especialment en pantalles OLED.</li>
-                    <li><strong>Imatges lleugeres:</strong> Totes les imatges del catàleg estan optimitzades en format WebP.</li>
-                </ul>
-            </section>
-        </main>
+        <article>
+            <h3>🏙️ ODS 11 — Ciutats i Comunitats Sostenibles</h3>
+            <p><strong>Com ho compleix EcoCity Connect?</strong> En limitar la cerca per codi postal, impulsem les comunitats de proximitat. Reduïm els desplaçaments per recollir objectes i els enviaments de paqueteria, disminuint el trànsit de furgonetes i les emissions de GEH a la ciutat.</p>
+        </article>
 
-    </body>
+        <article>
+            <h3>💻 ODS 9 — Indústria, Innovació i Infraestructura</h3>
+            <p><strong>Com ho compleix EcoCity Connect?</strong> Apliquem tecnologia (API REST amb Node.js, base de dades SQLite, arquitectura DAO) per crear una infraestructura digital d'innovació social. Demostrem que el programari pot ser una eina d'optimització de recursos físics existents.</p>
+        </article>
+    </section>
+
+    <!-- 2. IMPACTE ASG (Ambiental, Social, Governança)-->
+    <section>
+        <h2>Impacte ASG d'EcoCity Connect</h2>
+        <p>L'impacte positiu de la nostra plataforma s'analitza en tres dimensions seguint el marc <strong>ASG (Ambiental, Social i de Governança)</strong>:</p>
+
+        <article>
+            <h3>🌿 Ambiental</h3>
+            <p>Cada objecte que es presta evita una nova compra. Un taladre elèctric pesa de mitjana 1,5 kg i la seva fabricació genera aproximadament 15 kg de CO₂ equivalent (materials + energia de producció + transport). Si la plataforma facilita 500 préstecs mensuals i en un 20% dels casos substitueix una compra real, s'eviten 100 fabricacions, és a dir, <strong>1.500 kg de CO₂ estalviats al mes</strong>.</p>
+            <p>A més, el mode fosc de la interfície redueix el consum energètic de les pantalles OLED/AMOLED fins un 60%, i la nostra API transmet exclusivament les dades necessàries (JSON mínim), minimitzant el trànsit de xarxa i el consum dels servidors.</p>
+        </article>
+
+        <article>
+            <h3>🤝 Social</h3>
+            <p>EcoCity Connect crea <strong>capital social de proximitat</strong>: les interaccions entre veïns que presten i sol·liciten objectes generen confiança i cohesió comunitària, reduint l'aïllament social. Les famílies amb menys recursos econòmics accedeixen a eines i objectes que no podrien permetre's comprar, reduint la bretxa material entre veïns.</p>
+            <p>El sistema de sol·licituds amb resposta (acceptar/rebutjar) fomenta la comunicació transparent i el respecte mutu dins la comunitat.</p>
+        </article>
+
+        <article>
+            <h3>🏛️ Governança</h3>
+            <p>La plataforma incorpora un sistema de <strong>rols diferenciats</strong>: usuaris normals gestionen els seus propis objectes, i administradors poden supervisar i moderar tot el catàleg. Totes les accions destructives (eliminar, canviar estat) requereixen autenticació i autorització explícita. Les contrasenyes s'emmagatzemen amb hash bcrypt (cost 10) i mai en text pla. Els sessions expiren automàticament als 8 hores, seguint bones pràctiques de seguretat.</p>
+        </article>
+    </section>
+
+    <!-- 3. PRÀCTIQUES SOSTENIBLES DURANT EL DESENVOLUPAMENT-->
+    <section>
+        <h2>Pràctiques sostenibles aplicades durant el desenvolupament</h2>
+        <p>La sostenibilitat d'EcoCity Connect no és només el que fa la plataforma, sinó <strong>com s'ha creat</strong>. Aquí detallem les pràctiques concretes aplicades:</p>
+
+        <article>
+            <h3>☁️ Ús del núvol i codi al repositori GitHub</h3>
+            <p>El codi font s'ha gestionat completament amb <strong>Git i GitHub</strong>, eliminant la necessitat d'imprimir documentació o guardar còpies en dispositius físics. GitHub actua com a servidor al núvol per al codi, evitant crear servidors físics propis per al control de versions. Les còpies de seguretat s'automatitzen sense consum elèctric addicional per part nostra.</p>
+        </article>
+
+        <article>
+            <h3>🖥️ Apagada d'equips i configuració d'estalvi energètic</h3>
+            <p>Durant el desenvolupament s'han aplicat les configuracions d'estalvi energètic del sistema operatiu: apagada automàtica de pantalles als 5 minuts d'inactivitat, suspensió del sistema als 15 minuts, i apagada total de l'equip al finalitzar cada sessió de treball. No s'han deixat processos corrent innecessàriament en segon pla.</p>
+        </article>
+
+        <article>
+            <h3>📄 Zero impressions de paper</h3>
+            <p>Tota la documentació del projecte (enunciats, apunts, diagrames, notes) s'ha gestionat en format digital. Els enunciats de la pràctica s'han llegit en PDF al navegador. No s'ha imprès cap document físic durant tot el cicle de vida del projecte.</p>
+        </article>
+
+        <article>
+            <h3>🗄️ Base de dades SQLite: mínim consum de recursos</h3>
+            <p><strong>SQLite</strong> és un motor de base de dades sense servidor (serverless): no requereix un procés de BD corrent en segon pla consumint CPU i memòria constantment. Tot el motor és una única llibreria (.so) que s'activa només quan hi ha consultes. Per a un projecte de la mida d'EcoCity Connect, l'estalvi de recursos respecte a MySQL o PostgreSQL és significatiu.</p>
+        </article>
+
+        <article>
+            <h3>🔋 Mode fosc: estalvi energètic als dispositius dels usuaris</h3>
+            <p>El mode fosc implementat redueix el consum de les pantalles OLED/AMOLED entre un 40% i un 60% respecte al mode clar. La preferència es guarda a <strong>localStorage</strong> (persisteix entre sessions sense fer cap petició al servidor), minimitzant les consultes de xarxa. L'estat del mode fosc s'aplica immediatament en carregar la pàgina, evitant el "flash" de llum blanca.</p>
+        </article>
+    </section>
+
+    <!-- 4. PROGRAMACIÓ EFICIENT-->
+    <section>
+        <h2>Tècniques de programació eficient aplicades</h2>
+        <p>L'eficiència del codi és una forma directa de sostenibilitat digital: menys instruccions = menys cicles de CPU = menys energia. Aquí detallem les principals tècniques aplicades a EcoCity Connect:</p>
+
+        <article>
+            <h3>⚡ Patró DAO (Data Access Object)</h3>
+            <p>Tota la lògica de base de dades està encapsulada en un fitxer <code>dao/dao.js</code> separat del servidor. Això significa que si en el futur cal canviar de SQLite a PostgreSQL, només cal modificar un sol arxiu sense tocar cap endpoint ni cap pàgina HTML. A més, tots els models del DAO usen <strong>Prepared Statements</strong> (paràmetres <code>?</code> en les consultes SQL), que el motor de BD precompila una sola vegada i reutilitza, estalviant temps de parsing en cada crida.</p>
+        </article>
+
+        <article>
+            <h3>🔄 Filtrat local al client (zero peticions extra)</h3>
+            <p>Al catàleg general, quan l'usuari aplica filtres (categoria, estat, codi postal, cerca de text), <strong>no es fa cap nova petició al servidor</strong>. Les dades es descarreguen una sola vegada i el filtrat s'aplica sobre un array local al navegador amb el mètode natiu <code>Array.filter()</code>. Això elimina la latència de xarxa, no genera trànsit addicional i redueix la càrrega del servidor.</p>
+        </article>
+
+        <article>
+            <h3>🚀 API asíncrona amb async/await</h3>
+            <p>Tot el servidor usa <strong>programació asíncrona</strong> (async/await) en comptes d'I/O bloquejant. Quan Node.js espera una consulta a la BD, no bloqueja el fil d'execució: pot atendre altres peticions simultàniament. Això permet servir moltes connexions concurrents amb un sol procés, sense consumir memòria per crear múltiples fils (threads).</p>
+        </article>
+
+        <article>
+            <h3>🔒 Seguretat eficient: bcryptjs</h3>
+            <p>S'usa <strong>bcryptjs</strong> (implementació pura en JavaScript sense dependències natives de compilació) per fer hash de les contrasenyes. El cost de bcrypt es pot ajustar: un cost 10 és prou segur per a atacs de força bruta però prou ràpid per a l'experiència d'usuari. Les contrasenyes mai es guarden en text pla ni es transmeten per la xarxa en cap registre de log.</p>
+        </article>
+
+        <article>
+            <h3>📦 Gestió de sessió amb express-session</h3>
+            <p>En comptes de JWT (que requeriria enviar un token en cada petició i verificar-lo criptogràficament), s'usa <strong>sessió del servidor</strong> amb express-session. La sessió s'emmagatzema en memòria al servidor i al client només s'envia un identificador de sessió encriptat via cookie. Menys dades transmeses per petició i menys operacions criptogràfiques en cada crida.</p>
+        </article>
+    </section>
+
+</main>
+</body>
 </html>
