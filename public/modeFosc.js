@@ -1,7 +1,7 @@
 // darkmode.js — Gestió del mode fosc
 // El mode fosc redueix el consum energètic fins un 60% en pantalles OLED/AMOLED
 
-(function () {
+function initModeFosc() {
   // Comprova si l'usuari havia activat el mode fosc anteriorment
   const modeFoscActiu = localStorage.getItem('modeFosc') === 'true';
 
@@ -32,4 +32,6 @@
       actualitzarBoto();
     });
   });
-})();
+}
+
+initModeFosc();

@@ -17,7 +17,6 @@ async function loadComponents() {
     });
 
     initAuthUI();
-    initModeFosc(); // definida a modeFosc.js
 
   } catch (err) {
     console.error('Error carregant components:', err);

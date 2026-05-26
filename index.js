@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path"; // Manejar rutas de carpetas
 import { fileURLToPath } from 'url';
-import { ObjectModel } from "./dao/dao.js";
+import { ObjectModel, UserModel } from "./dao/dao.js";
 import session from 'express-session';
 
 // Necesario para usar __dirname con ES Modules
