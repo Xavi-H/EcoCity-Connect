@@ -32,14 +32,14 @@
             </div>
 
             <div class="detall-propietari" id="detall-propietari" style="display:none;">
-                👤 Publicat per: <strong id="detall-propietari-nom"></strong>
+                Publicat per: <strong id="detall-propietari-nom"></strong>
             </div>
         </div>
     </div>
 
     <!-- Formulari sol·licitud (inline, sota el detall) -->
     <div id="formulari-solicitar-wrap" style="display:none; max-width:700px; margin:1rem auto 0; background:var(--color-card,#fff); border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,.1); padding:1.5rem 2rem;">
-        <h3 style="margin-top:0;">📩 Enviar sol·licitud</h3>
+        <h3 style="margin-top:0;">Enviar sol·licitud</h3>
         <label for="missatge-solicitar-area">Missatge (opcional)</label>
         <textarea id="missatge-solicitar-area" rows="3" placeholder="Explica per a quin ús el necessites, dates aproximades..."></textarea>
         <p id="sol-licitar-error"></p>
@@ -131,7 +131,7 @@ function renderitzarDetall(obj) {
         // Disponible i no és meu
         zonaAccions.innerHTML = `
             <div class="detall-accions">
-                <button id="btn-obrir-solicitar" class="btn-primary">📩 Sol·licitar aquest objecte</button>
+                <button id="btn-obrir-solicitar" class="btn-primary">Sol·licitar aquest objecte</button>
                 <a href="catalegGeneral.html" style="text-decoration:none; padding:.5rem 1rem; border:1px solid #ced4da; border-radius:6px;">← Tornar al catàleg</a>
             </div>`;
         document.getElementById('btn-obrir-solicitar').addEventListener('click', obrirFormulariSolicitar);
