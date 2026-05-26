@@ -3,12 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCity Connect</title>
+    <title>Detalls de l'objecte - EcoCity Connect</title>
     <link rel="stylesheet" href="./../style/style.css">
-    <script src="./../components.js"></script>
+    <script src="./../components.js" defer></script>
+    <script src="./../modeFosc.js" defer></script>
+
 </head>
-    <body>
+<body>
+<main>
+    <p style="margin-bottom:1rem;"><a href="catalegGeneral.html">← Tornar al catàleg</a></p>
 
+    <div id="carregant" style="text-align:center; padding:3rem;">Carregant...</div>
+    <div id="error-vista" style="display:none; text-align:center; padding:3rem; color:#dc3545;"></div>
 
-    </body>
+    <div id="detall-container" class="detall-container" style="display:none;">
+        <div id="detall-imatge-wrapper"></div>
+        <div class="detall-cos">
+            <h2 id="detall-nom"></h2>
+            <div class="detall-meta">
+                <span><strong>Categoria:</strong> <span id="detall-categoria"></span></span>
+                <span><strong>CP:</strong> <span id="detall-cp"></span></span>
+                <span><strong>Estat:</strong> <span id="detall-estat-badge"></span></span>
+            </div>
+            <p id="detall-descripcio" class="detall-descripcio"></p>
+
+            <div id="zona-solicitar">
+                <!-- S'omple per JS -->
+            </div>
+
+            <div class="detall-propietari" id="detall-propietari" style="display:none;">
+                👤 Publicat per: <strong id="detall-propietari-nom"></strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulari sol·licitud (inline, sota el detall) -->
+    <div id="formulari-solicitar-wrap" style="display:none; max-width:700px; margin:1rem auto 0; background:var(--color-card,#fff); border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,.1); padding:1.5rem 2rem;">
+        <h3 style="margin-top:0;">📩 Enviar sol·licitud</h3>
+        <label for="missatge-solicitar-area">Missatge (opcional)</label>
+        <textarea id="missatge-solicitar-area" rows="3" placeholder="Explica per a quin ús el necessites, dates aproximades..."></textarea>
+        <p id="sol-licitar-error"></p>
+        <div style="display:flex;gap:.75rem;margin-top:.75rem;">
+            <button id="btn-confirmar-solicitar" class="btn-primary">Enviar sol·licitud</button>
+            <button id="btn-cancel-solicitar-inline">Cancel·lar</button>
+        </div>
+    </div>
+</main>
+
+<script>
+let objecteActual = null;
+let sessioUserId = null;
+
+// Llegir el paràmetre ?id=X de la URL
+function obtenirIdDeLaUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id') ? parseInt(params.get('id')) : null;
+}
+
+async function inicialitzar() {
+    const id = obtenirIdDeLaUrl();
+    if (!id) {
+        mostrarError('No s\'ha especificat cap objecte. Torna al catàleg.');
+        return;
+    }
+
+    // Comprovar sessió en paral·lel
+    const [sessio, resObj] = await Promise.all([
+        fetch('/api/me').then(r => r.json()),
+        fetch(`/api/objects/${id}`)
+    ]);
+    sessioUserId = sessio.loggedIn ? sessio.id : null;
+
+    if (!resObj.ok) {
+        mostrarError('Objecte no trobat. Pot ser que hagi estat eliminat.');
+        return;
+    }
+
+    objecteActual = await resObj.json();
+    renderitzarDetall(objecteActual);
+}
+
+function mostrarError(msg) {
+    document.getElementById('carregant').style.display = 'none';
+    const el = document.getElementById('error-vista');
+    el.textContent = msg;
+    el.style.display = 'block';
+}
+
+function renderitzarDetall(obj) {
+    document.getElementById('carregant').style.display = 'none';
+    document.title = `${obj.nom} - EcoCity Connect`;
+
+    // Imatge
+    const imgWrap = document.getElementById('detall-imatge-wrapper');
+    if (obj.imatge) {
+        imgWrap.innerHTML = `<img class="detall-imatge" src="${obj.imatge}" alt="${obj.nom}" onerror="this.parentElement.innerHTML='<div class=detall-imatge-placeholder>📦</div>'">`;
+    } else {
+        imgWrap.innerHTML = `<div class="detall-imatge-placeholder">📦</div>`;
+    }
+
+    document.getElementById('detall-nom').textContent = obj.nom;
+    document.getElementById('detall-categoria').textContent = obj.categoria;
+    document.getElementById('detall-cp').textContent = obj.cp;
+
+    const estatBadge = document.getElementById('detall-estat-badge');
+    estatBadge.textContent = obj.estat.toUpperCase();
+    estatBadge.className = `estat estat-${obj.estat}`;
+
+    document.getElementById('detall-descripcio').textContent = obj.descripcio || 'Sense descripció.';
+
+    // Zona accions
+    const zonaAccions = document.getElementById('zona-solicitar');
+    const esMeu = sessioUserId && obj.user_id === sessioUserId;
+
+    if (esMeu) {
+        zonaAccions.innerHTML = `
+            <div class="detall-accions">
+                <span style="color:#6c757d; font-style:italic;">Aquest objecte és teu.</span>
+                <a href="panellUsuari.html" class="btn-primary" style="text-decoration:none; padding:.5rem 1rem;">Gestionar al panell</a>
+            </div>`;
+    } else if (obj.estat !== 'disponible') {
+        zonaAccions.innerHTML = `
+            <div class="detall-accions">
+                <span style="color:#6c757d;">Aquest objecte no està disponible ara mateix.</span>
+            </div>`;
+    } else {
+        // Disponible i no és meu
+        zonaAccions.innerHTML = `
+            <div class="detall-accions">
+                <button id="btn-obrir-solicitar" class="btn-primary">📩 Sol·licitar aquest objecte</button>
+                <a href="catalegGeneral.html" style="text-decoration:none; padding:.5rem 1rem; border:1px solid #ced4da; border-radius:6px;">← Tornar al catàleg</a>
+            </div>`;
+        document.getElementById('btn-obrir-solicitar').addEventListener('click', obrirFormulariSolicitar);
+    }
+
+    // Propietari
+    if (obj.user_id) {
+        // Intentem mostrar el propietari (si el backend el retorna en un camp username, el mostrem)
+        document.getElementById('detall-propietari').style.display = 'block';
+        document.getElementById('detall-propietari-nom').textContent = obj.username || `Usuari #${obj.user_id}`;
+    }
+
+    document.getElementById('detall-container').style.display = 'block';
+}
+
+function obrirFormulariSolicitar() {
+    if (!sessioUserId) {
+        // Obrir modal login del header
+        const btnAuth = document.getElementById('btn-obrir-auth');
+        if (btnAuth) btnAuth.click();
+        return;
+    }
+    document.getElementById('missatge-solicitar-area').value = '';
+    document.getElementById('sol-licitar-error').textContent = '';
+    document.getElementById('formulari-solicitar-wrap').style.display = 'block';
+    document.getElementById('formulari-solicitar-wrap').scrollIntoView({ behavior: 'smooth' });
+}
+
+document.getElementById('btn-cancel-solicitar-inline').addEventListener('click', () => {
+    document.getElementById('formulari-solicitar-wrap').style.display = 'none';
+});
+
+document.getElementById('btn-confirmar-solicitar').addEventListener('click', async () => {
+    const missatge = document.getElementById('missatge-solicitar-area').value.trim();
+    const errorEl  = document.getElementById('sol-licitar-error');
+    errorEl.textContent = '';
+
+    const res = await fetch('/api/solicituds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ object_id: objecteActual.id, missatge })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+        errorEl.textContent = data.error;
+        return;
+    }
+
+    document.getElementById('formulari-solicitar-wrap').style.display = 'none';
+    const anar = confirm(`✅ Sol·licitud enviada correctament per "${objecteActual.nom}"!\n\nVols veure les teves sol·licituds?`);
+    if (anar) window.location.href = '/view/solicituds.html';
+});
+
+document.addEventListener('DOMContentLoaded', inicialitzar);
+</script>
+</body>
 </html>
