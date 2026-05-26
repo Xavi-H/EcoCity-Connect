@@ -2,6 +2,7 @@ import express from "express";
 import path from "path"; // Manejar rutas de carpetas
 import { fileURLToPath } from 'url';
 import { ObjectModel } from "./dao/dao.js";
+import session from 'express-session';
 
 // Necesario para usar __dirname con ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -14,9 +15,66 @@ const PORT = 3000; // El port que escoltara el servidor
 // ==== CONFIGURACIÓ ====
 APP.use(express.json()); // Para que el servidor pueda leer datos JSON para las peticions
 APP.use(express.static('public')); // fa que la carpeta public sigui visible al servidor
-
+APP.use(session({
+    secret: 'ecocity_session_secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 8 } // 8 hores
+}));
 
 // ==== Endpoints (API REST) ====
+
+// Autenticació
+// POST /api/register
+APP.post('/api/register', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'Usuari i contrasenya obligatoris' });
+    if (password.length < 4) return res.status(400).json({ error: 'La contrasenya ha de tenir mínim 4 caràcters' });
+
+    try {
+        const existent = await UserModel.getByUsername(username);
+        if (existent) return res.status(409).json({ error: 'Aquest nom d\'usuari ja existeix' });
+
+        const user = await UserModel.create(username, password);
+        req.session.userId = user.id;
+        req.session.username = user.username;
+        res.status(201).json({ id: user.id, username: user.username });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
+// POST /api/login
+APP.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'Usuari i contrasenya obligatoris' });
+
+    try {
+        const user = await UserModel.verifyPassword(username, password);
+        if (!user) return res.status(401).json({ error: 'Credencials incorrectes' });
+
+        req.session.userId = user.id;
+        req.session.username = user.username;
+        res.json({ id: user.id, username: user.username });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
+// POST /api/logout
+APP.post('/api/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.json({ missatge: 'Sessió tancada' });
+    });
+});
+
+// GET /api/me — retorna l'usuari de la sessió actual
+APP.get('/api/me', (req, res) => {
+    if (!req.session.userId) return res.json({ loggedIn: false });
+    res.json({ loggedIn: true, id: req.session.userId, username: req.session.username });
+});
 
 // Mostrara l'index.html quan es consulti l'arrel
 APP.get('/', (req, res) => {
@@ -41,6 +99,17 @@ APP.get('/api/objects', async (req, res) => {
     }
 });
 
+// GET /api/objects/meus — objectes de l'usuari en sessió
+APP.get('/api/objects/meus', async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Cal iniciar sessió' });
+    try {
+        const data = await ObjectModel.getByUserId(req.session.userId);
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: 'Error intern del servidor' });
+    }
+});
+
 // GET /api/objects/:id → Obtener un objeto por ID
 APP.get('/api/objects/:id', async (req, res) => {
     try {
@@ -59,18 +128,14 @@ APP.get('/api/objects/:id', async (req, res) => {
 // POST /api/objects → Crear un objeto nuevo
 // Body (JSON): { nom, descripcio, categoria, cp, estat, imatge }
 APP.post('/api/objects', async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Cal iniciar sessió per crear objectes' });
+    const { nom, descripcio, categoria, cp, estat, imatge } = req.body;
+    if (!nom || !categoria || !cp) return res.status(400).json({ error: 'nom, categoria i cp són obligatoris' });
+
     try {
-        const { nom, descripcio, categoria, cp, estat, imatge } = req.body;
-
-        // Validación básica de campos obligatorios
-        if (!nom || !categoria || !cp) {
-            return res.status(400).json({ error: 'Els camps nom, categoria i cp són obligatoris' });
-        }
-
-        const nouObjecte = await ObjectModel.create({ nom, descripcio, categoria, cp, estat, imatge });
-        res.status(201).json(nouObjecte);
-    } catch (error) {
-        console.error(error);
+        const nou = await ObjectModel.create({ nom, descripcio, categoria, cp, estat, imatge, user_id: req.session.userId });
+        res.status(201).json(nou);
+    } catch (err) {
         res.status(500).json({ error: 'Error intern del servidor' });
     }
 });
@@ -78,36 +143,36 @@ APP.post('/api/objects', async (req, res) => {
 // PUT /api/objects/:id → Actualizar un objeto existente
 // Body (JSON): { nom, descripcio, categoria, cp, estat, imatge }
 APP.put('/api/objects/:id', async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Cal iniciar sessió' });
+    const id = parseInt(req.params.id);
+    const { nom, descripcio, categoria, cp, estat, imatge } = req.body;
+    if (!nom || !categoria || !cp) return res.status(400).json({ error: 'nom, categoria i cp són obligatoris' });
+
     try {
-        const id = parseInt(req.params.id);
-        const { nom, descripcio, categoria, cp, estat, imatge } = req.body;
+        const existent = await ObjectModel.getById(id);
+        if (!existent) return res.status(404).json({ error: 'Objecte no trobat' });
+        if (existent.user_id !== req.session.userId) return res.status(403).json({ error: 'No tens permís per editar aquest objecte' });
 
-        if (!nom || !categoria || !cp) {
-            return res.status(400).json({ error: 'Els camps nom, categoria i cp són obligatoris' });
-        }
-
-        const objecteActualitzat = await ObjectModel.update(id, { nom, descripcio, categoria, cp, estat, imatge });
-        if (!objecteActualitzat) {
-            return res.status(404).json({ error: 'Objecte no trobat' });
-        }
-        res.json(objecteActualitzat);
-    } catch (error) {
-        console.error(error);
+        const actualitzat = await ObjectModel.update(id, { nom, descripcio, categoria, cp, estat, imatge });
+        res.json(actualitzat);
+    } catch (err) {
         res.status(500).json({ error: 'Error intern del servidor' });
     }
 });
 
 // DELETE /api/objects/:id → Eliminar un objeto
 APP.delete('/api/objects/:id', async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Cal iniciar sessió' });
+    const id = parseInt(req.params.id);
+
     try {
-        const id = parseInt(req.params.id);
-        const eliminat = await ObjectModel.delete(id);
-        if (!eliminat) {
-            return res.status(404).json({ error: 'Objecte no trobat' });
-        }
-        res.json({ missatge: 'Objecte eliminat correctament', id });
-    } catch (error) {
-        console.error(error);
+        const existent = await ObjectModel.getById(id);
+        if (!existent) return res.status(404).json({ error: 'Objecte no trobat' });
+        if (existent.user_id !== req.session.userId) return res.status(403).json({ error: 'No tens permís per eliminar aquest objecte' });
+
+        await ObjectModel.delete(id);
+        res.json({ missatge: 'Objecte eliminat', id });
+    } catch (err) {
         res.status(500).json({ error: 'Error intern del servidor' });
     }
 });
