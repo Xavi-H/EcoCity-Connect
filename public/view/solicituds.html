@@ -12,34 +12,30 @@
 <main>
     <!-- No logejat -->
     <div id="vista-no-login" style="display:none; text-align:center; padding:4rem 1rem;">
-        <p style="font-size:1.2rem;">🔒 Has d'iniciar sessió per veure les sol·licituds.</p>
-        <p>Fes clic a <strong>🔑 Entrar</strong> a la barra superior.</p>
+        <p style="font-size:1.2rem;">Has d'iniciar sessió per veure les sol·licituds.</p>
+        <p>Fes clic a <strong>Entrar</strong> a la barra superior.</p>
     </div>
 
     <!-- Logejat -->
     <div id="vista-principal" style="display:none;">
-        <h2>📩 Sol·licituds</h2>
+        <h2>Sol·licituds</h2>
 
         <!-- Pestanyes -->
         <nav class="tabs">
-            <button class="tab-btn activa" data-tab="enviades">
-                📤 Enviades <span id="badge-enviades"></span>
-            </button>
-            <button class="tab-btn" data-tab="rebudes">
-                📬 Rebudes <span id="badge-rebudes"></span>
-            </button>
+            <button class="tab-btn activa" data-tab="enviades">Enviades <span id="badge-enviades"></span></button>
+            <button class="tab-btn" data-tab="rebudes">Rebudes <span id="badge-rebudes"></span></button>
         </nav>
 
         <!-- Panell enviades -->
         <div id="tab-enviades" class="tab-panell actiu">
-            <p style="color:#6c757d; font-size:.9rem; margin-bottom:1rem;">Objectes que has sol·licitat a altres usuaris.</p>
+            <p>Objectes que has sol·licitat a altres usuaris.</p>
             <p id="enviades-carregant">Carregant...</p>
             <div id="enviades-contenidor"></div>
         </div>
 
         <!-- Panell rebudes -->
         <div id="tab-rebudes" class="tab-panell">
-            <p style="color:#6c757d; font-size:.9rem; margin-bottom:1rem;">Sol·licituds sobre els teus objectes publicats.</p>
+            <p>Sol·licituds sobre els teus objectes publicats.</p>
             <p id="rebudes-carregant">Carregant...</p>
             <div id="rebudes-contenidor"></div>
         </div>
@@ -48,7 +44,7 @@
 </main>
 
 <script>
-// ── Pestanyes ──────────────────────────────────────────────────
+// Pestanyes
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activa'));
@@ -58,7 +54,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
-// ── Inicialitzar ───────────────────────────────────────────────
+// Inicialitzar
 async function inicialitzar() {
     const sessio = await fetch('/api/me').then(r => r.json());
     if (!sessio.loggedIn) {
@@ -70,12 +66,12 @@ async function inicialitzar() {
     carregarRebudes();
 }
 
-// ── Sol·licituds ENVIADES ──────────────────────────────────────
+// Sol·licituds ENVIADES
 async function carregarEnviades() {
     const el = document.getElementById('enviades-carregant');
     el.style.display = 'block';
     try {
-        const res  = await fetch('/api/solicituds/enviades');
+        const res = await fetch('/api/solicituds/enviades');
         const data = await res.json();
         el.style.display = 'none';
         document.getElementById('badge-enviades').textContent = data.length ? `(${data.length})` : '';
@@ -96,9 +92,7 @@ function renderitzarEnviades(llista) {
         const div = document.createElement('div');
         div.className = 'sol-card';
         div.innerHTML = `
-            <img src="${s.imatge || ''}" alt="${s.nom}"
-                 onerror="this.style.display='none'"
-                 style="width:72px; height:72px; object-fit:cover; border-radius:8px; border:1px solid #dee2e6; flex-shrink:0;">
+            <img src="${s.imatge || ''}" alt="${s.nom}"onerror="this.style.display='none'">
             <div class="sol-card-info">
                 <h4>${s.nom}</h4>
                 <div class="sol-card-meta">
@@ -110,9 +104,7 @@ function renderitzarEnviades(llista) {
                 ${s.missatge ? `<p class="sol-missatge">"${s.missatge}"</p>` : ''}
             </div>
             <div class="sol-accions">
-                <span class="estat estat-badge-${s.estat}"
-                      style="font-size:.78rem; font-weight:700; padding:.2rem .55rem; border-radius:4px; white-space:nowrap;">
-                    ${iconEstat(s.estat)} ${s.estat.toUpperCase()}
+                <span class="estat estat-badge-${s.estat}">${iconEstat(s.estat)} ${s.estat.toUpperCase()}
                 </span>
                 ${s.estat === 'pendent'
                     ? `<button class="btn-cancel" data-id="${s.id}">❌ Cancel·lar</button>`
@@ -133,12 +125,12 @@ async function cancellarSolicitud(id) {
     carregarEnviades();
 }
 
-// ── Sol·licituds REBUDES ───────────────────────────────────────
+// Sol·licituds REBUDES
 async function carregarRebudes() {
     const el = document.getElementById('rebudes-carregant');
     el.style.display = 'block';
     try {
-        const res  = await fetch('/api/solicituds/rebudes');
+        const res = await fetch('/api/solicituds/rebudes');
         const data = await res.json();
         el.style.display = 'none';
         const pendents = data.filter(s => s.estat === 'pendent').length;
@@ -161,7 +153,7 @@ function renderitzarRebudes(llista) {
         div.className = 'sol-card';
         div.innerHTML = `
             <div class="sol-card-info">
-                <h4>${s.nom} <small style="color:#6c757d; font-weight:normal;">— CP ${s.cp}</small></h4>
+                <h4>${s.nom} <small>— CP ${s.cp}</small></h4>
                 <div class="sol-card-meta">
                     <strong>Sol·licitant:</strong> ${s.solicitant}<br>
                     <strong>Categoria:</strong> ${s.categoria}<br>
@@ -170,12 +162,9 @@ function renderitzarRebudes(llista) {
                 ${s.missatge ? `<p class="sol-missatge">"${s.missatge}"</p>` : ''}
             </div>
             <div class="sol-accions">
-                <span class="estat estat-badge-${s.estat}"
-                      style="font-size:.78rem; font-weight:700; padding:.2rem .55rem; border-radius:4px; white-space:nowrap;">
-                    ${iconEstat(s.estat)} ${s.estat.toUpperCase()}
-                </span>
+                <span class="estat estat-badge-${s.estat}">${iconEstat(s.estat)} ${s.estat.toUpperCase()}</span>
                 ${s.estat === 'pendent' ? `
-                    <button class="btn-primary btn-acceptar" data-id="${s.id}" style="padding:.35rem .7rem; font-size:.82rem;">✅ Acceptar</button>
+                    <button class="btn-primary btn-acceptar" data-id="${s.id}">✅ Acceptar</button>
                     <button class="btn-cancel btn-rebutjar" data-id="${s.id}">❌ Rebutjar</button>
                 ` : ''}
             </div>

@@ -24,7 +24,7 @@
         </select>
 
         <label for="filtre-cp">Codi Postal:</label>
-        <input type="text" id="filtre-cp" placeholder="Ex: 08001" maxlength="5" style="width:7rem;">
+        <input type="text" id="filtre-cp" placeholder="Ex: 08001" maxlength="5">
 
         <label for="filtre-cerca">Cercar:</label>
         <input type="text" id="filtre-cerca" placeholder="Nom o descripció...">
@@ -37,10 +37,10 @@
 </main>
 
 <!-- Modal editar -->
-<div id="modal-editar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:8000;align-items:center;justify-content:center;">
+<div id="modal-editar" style="display:none;">
     <div class="modal-auth-box">
-        <h3>✏️ Editar objecte</h3>
-        <form id="formulari-editar" style="display:flex;flex-direction:column;gap:.6rem;">
+        <h3>Editar objecte</h3>
+        <form id="formulari-editar">
             <input type="hidden" id="edit-id">
             <label>Nom *</label><input type="text" id="edit-nom" required>
             <label>Descripció</label><textarea id="edit-descripcio" rows="2"></textarea>
@@ -64,11 +64,11 @@
 </div>
 
 <!-- Modal sol·licitar producte -->
-<div id="modal-solicitar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:8000;align-items:center;justify-content:center;">
+<div id="modal-solicitar" style="display:none;">
     <div class="modal-auth-box">
-        <button id="btn-tancar-solicitar" class="modal-close-btn" style="position:absolute;top:.75rem;right:.75rem;">✕</button>
-        <h3>📩 Sol·licitar objecte</h3>
-        <p id="solicitar-nom-objecte" style="font-weight:600; color:var(--color-primary); margin:.25rem 0 .75rem;"></p>
+        <button id="btn-tancar-solicitar" class="modal-close-btn">✕</button>
+        <h3>Sol·licitar objecte</h3>
+        <p id="solicitar-nom-objecte" ></p>
         <input type="hidden" id="solicitar-object-id">
         <div style="display:flex;flex-direction:column;gap:.6rem;">
             <label>Missatge (opcional)</label>
@@ -138,7 +138,7 @@ function renderitzarObjectes(llista) {
             </div>`;
 
         if (esMeu) {
-            card.querySelector('.btn-editar').addEventListener('click',   () => obrirModalEditar(obj, 'edit-errors'));
+            card.querySelector('.btn-editar').addEventListener('click', () => obrirModalEditar(obj, 'edit-errors'));
             card.querySelector('.btn-eliminar').addEventListener('click', () => eliminar(obj.id, obj.nom));
         } else {
             card.querySelector('.btn-sol-licitar').addEventListener('click', () => obrirModalSolicitar(obj.id, obj.nom));
@@ -161,14 +161,14 @@ function omplirSelectCategories() {
 }
 
 function aplicarFiltres() {
-    const cat   = document.getElementById('filtre-categoria').value;
+    const cat = document.getElementById('filtre-categoria').value;
     const estat = document.getElementById('filtre-estat').value;
-    const cp    = document.getElementById('filtre-cp').value.trim();
+    const cp = document.getElementById('filtre-cp').value.trim();
     const cerca = document.getElementById('filtre-cerca').value.toLowerCase().trim();
     renderitzarObjectes(totsElsObjectes.filter(o =>
-        (!cat   || o.categoria === cat) &&
+        (!cat || o.categoria === cat) &&
         (!estat || o.estat === estat) &&
-        (!cp    || o.cp === cp) &&
+        (!cp || o.cp === cp) &&
         (!cerca || o.nom.toLowerCase().includes(cerca) || (o.descripcio || '').toLowerCase().includes(cerca))
     ));
 }
@@ -247,7 +247,7 @@ document.getElementById('modal-solicitar').addEventListener('click', e => {
 document.getElementById('btn-confirmar-solicitar').addEventListener('click', async () => {
     const objectId = parseInt(document.getElementById('solicitar-object-id').value);
     const missatge = document.getElementById('solicitar-missatge').value.trim();
-    const errorEl  = document.getElementById('solicitar-error');
+    const errorEl = document.getElementById('solicitar-error');
     errorEl.textContent = '';
 
     const res  = await fetch('/api/solicituds', {
@@ -259,7 +259,7 @@ document.getElementById('btn-confirmar-solicitar').addEventListener('click', asy
     if (!res.ok) { errorEl.textContent = data.error; return; }
 
     tancarModalSolicitar();
-    const anar = confirm('✅ Sol·licitud enviada correctament!\n\nVols veure les teves sol·licituds?');
+    const anar = confirm('Sol·licitud enviada correctament!\n\nVols veure les teves sol·licituds?');
     if (anar) window.location.href = '/view/solicituds.html';
 });
 

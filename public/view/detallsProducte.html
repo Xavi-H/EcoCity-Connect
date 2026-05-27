@@ -13,8 +13,8 @@
 <main>
     <p style="margin-bottom:1rem;"><a href="catalegGeneral.html">← Tornar al catàleg</a></p>
 
-    <div id="carregant" style="text-align:center; padding:3rem;">Carregant...</div>
-    <div id="error-vista" style="display:none; text-align:center; padding:3rem; color:#dc3545;"></div>
+    <div id="carregant">Carregant...</div>
+    <div id="error-vista"></div>
 
     <div id="detall-container" class="detall-container" style="display:none;">
         <div id="detall-imatge-wrapper"></div>
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Formulari sol·licitud (inline, sota el detall) -->
-    <div id="formulari-solicitar-wrap" style="display:none; max-width:700px; margin:1rem auto 0; background:var(--color-card,#fff); border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,.1); padding:1.5rem 2rem;">
+    <div id="formulari-solicitar-wrap">
         <h3 style="margin-top:0;">Enviar sol·licitud</h3>
         <label for="missatge-solicitar-area">Missatge (opcional)</label>
         <textarea id="missatge-solicitar-area" rows="3" placeholder="Explica per a quin ús el necessites, dates aproximades..."></textarea>
@@ -120,7 +120,7 @@ function renderitzarDetall(obj) {
         zonaAccions.innerHTML = `
             <div class="detall-accions">
                 <span style="color:#6c757d; font-style:italic;">Aquest objecte és teu.</span>
-                <a href="panellUsuari.html" class="btn-primary" style="text-decoration:none; padding:.5rem 1rem;">Gestionar al panell</a>
+                <a href="panellUsuari.html" class="btn-primary">Gestionar al panell</a>
             </div>`;
     } else if (obj.estat !== 'disponible') {
         zonaAccions.innerHTML = `
@@ -132,7 +132,7 @@ function renderitzarDetall(obj) {
         zonaAccions.innerHTML = `
             <div class="detall-accions">
                 <button id="btn-obrir-solicitar" class="btn-primary">Sol·licitar aquest objecte</button>
-                <a href="catalegGeneral.html" style="text-decoration:none; padding:.5rem 1rem; border:1px solid #ced4da; border-radius:6px;">← Tornar al catàleg</a>
+                <a href="catalegGeneral.html">← Tornar al catàleg</a>
             </div>`;
         document.getElementById('btn-obrir-solicitar').addEventListener('click', obrirFormulariSolicitar);
     }
@@ -182,7 +182,7 @@ document.getElementById('btn-confirmar-solicitar').addEventListener('click', asy
     }
 
     document.getElementById('formulari-solicitar-wrap').style.display = 'none';
-    const anar = confirm(`✅ Sol·licitud enviada correctament per "${objecteActual.nom}"!\n\nVols veure les teves sol·licituds?`);
+    const anar = confirm(`Sol·licitud enviada correctament per "${objecteActual.nom}"!\n\nVols veure les teves sol·licituds?`);
     if (anar) window.location.href = '/view/solicituds.html';
 });
 

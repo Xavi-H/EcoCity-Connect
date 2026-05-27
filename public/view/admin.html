@@ -12,10 +12,10 @@
 <main>
 
     <!-- No admin -->
-    <div id="vista-no-admin" style="display:none; text-align:center; padding:4rem 1rem;">
-        <p style="font-size:1.3rem;">🔒 Aquesta pàgina és exclusiva per a administradors.</p>
+    <div id="vista-no-admin" style="display:none;">
+        <p style="font-size:1.3rem;">Aquesta pàgina és exclusiva per a administradors.</p>
         <p>Inicia sessió amb un compte d'administrador per accedir.</p>
-        <p style="margin-top:1rem; color:#6c757d; font-size:.9rem;">Credencials per defecte: <strong>admin</strong> / <strong>admin1234</strong></p>
+        <p>Credencials per defecte: <strong>admin</strong> / <strong>admin1234</strong></p>
     </div>
 
     <!-- Panel admin -->
@@ -24,32 +24,32 @@
 
         <!-- Estadístiques -->
         <section style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:2rem;">
-            <div class="stat-card" style="background:var(--color-primary);color:#fff;border-radius:10px;padding:1rem 1.5rem;min-width:130px;text-align:center;">
-                <div style="font-size:2rem;font-weight:700;" id="stat-total">–</div>
-                <div style="font-size:.85rem;opacity:.9;">Objectes totals</div>
+            <div class="stat-card">
+                <div id="stat-total">–</div>
+                <div>Objectes totals</div>
             </div>
-            <div style="background:#2d6a4f;color:#fff;border-radius:10px;padding:1rem 1.5rem;min-width:130px;text-align:center;">
-                <div style="font-size:2rem;font-weight:700;" id="stat-disp">–</div>
-                <div style="font-size:.85rem;opacity:.9;">Disponibles</div>
+            <div>
+                <div id="stat-disp">–</div>
+                <div>Disponibles</div>
             </div>
-            <div style="background:#e76f51;color:#fff;border-radius:10px;padding:1rem 1.5rem;min-width:130px;text-align:center;">
-                <div style="font-size:2rem;font-weight:700;" id="stat-prest">–</div>
-                <div style="font-size:.85rem;opacity:.9;">Prestats</div>
+            <div>
+                <div id="stat-prest">–</div>
+                <div>Prestats</div>
             </div>
-            <div style="background:#457b9d;color:#fff;border-radius:10px;padding:1rem 1.5rem;min-width:130px;text-align:center;">
-                <div style="font-size:2rem;font-weight:700;" id="stat-users">–</div>
-                <div style="font-size:.85rem;opacity:.9;">Usuaris registrats</div>
+            <div>
+                <div id="stat-users">–</div>
+                <div>Usuaris registrats</div>
             </div>
-            <div style="background:#6c757d;color:#fff;border-radius:10px;padding:1rem 1.5rem;min-width:130px;text-align:center;">
-                <div style="font-size:2rem;font-weight:700;" id="stat-cats">–</div>
-                <div style="font-size:.85rem;opacity:.9;">Categories</div>
+            <div>
+                <div id="stat-cats">–</div>
+                <div>Categories</div>
             </div>
         </section>
 
         <!-- Pestanyes -->
-        <nav class="tabs" style="margin-bottom:1.5rem;">
-            <button class="tab-btn activa" data-tab="objectes">📦 Objectes</button>
-            <button class="tab-btn" data-tab="usuaris">👥 Usuaris</button>
+        <nav class="tabs">
+            <button class="tab-btn activa" data-tab="objectes">Objectes</button>
+            <button class="tab-btn" data-tab="usuaris">Usuaris</button>
         </nav>
 
         <!-- ── TAB OBJECTES ── -->
@@ -57,37 +57,33 @@
 
             <!-- Barra d'eines -->
             <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
-                <input type="text" id="cerca-admin" placeholder="🔍 Cercar per nom o categoria..."
-                       style="flex:1;min-width:200px;padding:.5rem .75rem;border:1px solid #dee2e6;border-radius:6px;">
-                <select id="filtre-estat-admin"
-                        style="padding:.5rem .75rem;border:1px solid #dee2e6;border-radius:6px;">
+                <input type="text" id="cerca-admin" placeholder="🔍 Cercar per nom o categoria...">
+                <select id="filtre-estat-admin">
                     <option value="">Tots els estats</option>
                     <option value="disponible">Disponible</option>
                     <option value="prestat">Prestat</option>
                 </select>
-                <button id="btn-nou-objecte" class="btn-primary">➕ Nou objecte</button>
-                <span id="comptador-admin" style="color:#6c757d;font-size:.9rem;"></span>
+                <button id="btn-nou-objecte" class="btn-primary">Nou objecte</button>
+                <span id="comptador-admin"></span>
             </div>
 
             <p id="admin-carregant">Carregant objectes...</p>
-            <div id="taula-contenidor" style="overflow-x:auto;"></div>
+            <div id="taula-contenidor"></div>
         </div>
 
         <!-- ── TAB USUARIS ── -->
         <div id="tab-usuaris" class="tab-panell" style="display:none;">
             <p id="usuaris-carregant">Carregant usuaris...</p>
-            <div id="taula-usuaris" style="overflow-x:auto;"></div>
+            <div id="taula-usuaris"></div>
         </div>
     </div>
 
     <!-- Modal crear / editar objecte-->
-    <div id="modal-editar"
-         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:8000;align-items:center;justify-content:center;">
-        <div class="modal-auth-box" style="max-height:90vh;overflow-y:auto;">
-            <button id="btn-tancar-modal" class="modal-close-btn"
-                    style="position:sticky;top:0;float:right;">✕</button>
-            <h3 id="modal-titol">✏️ Editar objecte</h3>
-            <form id="form-editar" style="display:flex;flex-direction:column;gap:.6rem;margin-top:.5rem;">
+    <div id="modal-editar" style="display:none;">
+        <div class="modal-auth-box">
+            <button id="btn-tancar-modal" class="modal-close-btn">✕</button>
+            <h3 id="modal-titol">Editar objecte</h3>
+            <form id="form-editar">
                 <input type="hidden" id="edit-id">
 
                 <label>Nom *</label>
@@ -154,10 +150,10 @@ async function carregarStats() {
     try {
         const s = await fetch('/api/admin/stats').then(r => r.json());
         document.getElementById('stat-total').textContent = s.totalObjects;
-        document.getElementById('stat-disp').textContent  = s.disponibles;
+        document.getElementById('stat-disp').textContent = s.disponibles;
         document.getElementById('stat-prest').textContent = s.prestats;
         document.getElementById('stat-users').textContent = s.totalUsers;
-        document.getElementById('stat-cats').textContent  = s.categories;
+        document.getElementById('stat-cats').textContent = s.categories;
     } catch {}
 }
 
@@ -185,17 +181,16 @@ function renderitzarTaula(llista) {
     }
 
     const taula = document.createElement('table');
-    taula.style.cssText = 'width:100%;border-collapse:collapse;font-size:.9rem;';
     taula.innerHTML = `
         <thead>
-            <tr style="background:var(--color-primary);color:#fff;text-align:left;">
-                <th style="padding:.6rem .8rem;">ID</th>
-                <th style="padding:.6rem .8rem;">Nom</th>
-                <th style="padding:.6rem .8rem;">Categoria</th>
-                <th style="padding:.6rem .8rem;">CP</th>
-                <th style="padding:.6rem .8rem;">Estat</th>
-                <th style="padding:.6rem .8rem;">Propietari</th>
-                <th style="padding:.6rem .8rem;text-align:center;">Accions</th>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Categoria</th>
+                <th>CP</th>
+                <th>Estat</th>
+                <th>Propietari</th>
+                <th>Accions</th>
             </tr>
         </thead>
         <tbody id="taula-cos"></tbody>`;
@@ -205,22 +200,15 @@ function renderitzarTaula(llista) {
         const tr = document.createElement('tr');
         tr.style.background = i % 2 === 0 ? '' : 'rgba(0,0,0,.03)';
         tr.innerHTML = `
-            <td style="padding:.5rem .8rem;color:#6c757d;">${obj.id}</td>
-            <td style="padding:.5rem .8rem;font-weight:600;">${obj.nom}</td>
-            <td style="padding:.5rem .8rem;">${obj.categoria}</td>
-            <td style="padding:.5rem .8rem;">${obj.cp}</td>
-            <td style="padding:.5rem .8rem;">
-                <span class="estat estat-${obj.estat}">${obj.estat.toUpperCase()}</span>
-            </td>
-            <td style="padding:.5rem .8rem;color:#6c757d;">${obj.username || '—'}</td>
-            <td style="padding:.5rem .8rem;text-align:center;">
-                <button class="btn-edit btn-primary"
-                        style="padding:.3rem .65rem;font-size:.8rem;margin-right:.3rem;"
-                        data-id="${obj.id}">✏️ Editar</button>
-                <button class="btn-del"
-                        style="background:#ffe0e0;color:#c1121f;border:none;border-radius:5px;
-                               padding:.3rem .65rem;cursor:pointer;font-size:.8rem;"
-                        data-id="${obj.id}" data-nom="${obj.nom}">🗑️ Eliminar</button>
+            <td>${obj.id}</td>
+            <td>${obj.nom}</td>
+            <td>${obj.categoria}</td>
+            <td>${obj.cp}</td>
+            <td><span class="estat estat-${obj.estat}">${obj.estat.toUpperCase()}</span></td>
+            <td >${obj.username || '—'}</td>
+            <td>
+                <button class="btn-edit btn-primary" data-id="${obj.id}">✏️ Editar</button>
+                <button class="btn-del" data-id="${obj.id}" data-nom="${obj.nom}">🗑️ Eliminar</button>
             </td>`;
 
         tr.querySelector('.btn-edit').addEventListener('click',
@@ -238,10 +226,7 @@ function aplicarFiltres() {
     const cerca = document.getElementById('cerca-admin').value.toLowerCase().trim();
     const estat = document.getElementById('filtre-estat-admin').value;
     renderitzarTaula(totsElsObjectes.filter(o =>
-        (!cerca || o.nom.toLowerCase().includes(cerca)
-                || o.categoria.toLowerCase().includes(cerca)
-                || (o.username || '').toLowerCase().includes(cerca)) &&
-        (!estat || o.estat === estat)
+        (!cerca || o.nom.toLowerCase().includes(cerca) || o.categoria.toLowerCase().includes(cerca) || (o.username || '').toLowerCase().includes(cerca)) && (!estat || o.estat === estat)
     ));
 }
 
@@ -261,36 +246,32 @@ function obrirModalEditar(id) {
     const obj = totsElsObjectes.find(o => o.id === id);
     if (!obj) return;
 
-    document.getElementById('modal-titol').textContent    = '✏️ Editar objecte';
-    document.getElementById('btn-guardar').textContent    = 'Guardar canvis';
-    document.getElementById('edit-id').value              = obj.id;
-    document.getElementById('edit-nom').value             = obj.nom;
-    document.getElementById('edit-descripcio').value      = obj.descripcio || '';
-    document.getElementById('edit-cp').value              = obj.cp;
-    document.getElementById('edit-estat').value           = obj.estat;
-    document.getElementById('edit-imatge').value          = obj.imatge || '';
-    document.getElementById('edit-errors').textContent    = '';
+    document.getElementById('modal-titol').textContent = 'Editar objecte';
+    document.getElementById('btn-guardar').textContent = 'Guardar canvis';
+    document.getElementById('edit-id').value = obj.id;
+    document.getElementById('edit-nom').value = obj.nom;
+    document.getElementById('edit-descripcio').value = obj.descripcio || '';
+    document.getElementById('edit-cp').value = obj.cp;
+    document.getElementById('edit-estat').value = obj.estat;
+    document.getElementById('edit-imatge').value = obj.imatge || '';
+    document.getElementById('edit-errors').textContent = '';
     omplirSelectCategoria(obj.categoria);
-
-    document.getElementById('modal-editar').style.display = 'flex';
 }
 
 // MODAL — obrir per crear
 function obrirModalCrear() {
     modeCrear = true;
 
-    document.getElementById('modal-titol').textContent    = '➕ Nou objecte';
-    document.getElementById('btn-guardar').textContent    = 'Crear objecte';
-    document.getElementById('edit-id').value              = '';
-    document.getElementById('edit-nom').value             = '';
-    document.getElementById('edit-descripcio').value      = '';
-    document.getElementById('edit-cp').value              = '';
-    document.getElementById('edit-estat').value           = 'disponible';
-    document.getElementById('edit-imatge').value          = '';
-    document.getElementById('edit-errors').textContent    = '';
+    document.getElementById('modal-titol').textContent = 'Nou objecte';
+    document.getElementById('btn-guardar').textContent = 'Crear objecte';
+    document.getElementById('edit-id').value = '';
+    document.getElementById('edit-nom').value = '';
+    document.getElementById('edit-descripcio').value = '';
+    document.getElementById('edit-cp').value = '';
+    document.getElementById('edit-estat').value = 'disponible';
+    document.getElementById('edit-imatge').value = '';
+    document.getElementById('edit-errors').textContent = '';
     omplirSelectCategoria('');
-
-    document.getElementById('modal-editar').style.display = 'flex';
 }
 
 function tancarModal() {
@@ -304,12 +285,12 @@ document.getElementById('form-editar').addEventListener('submit', async e => {
     errorEl.textContent = '';
 
     const body = {
-        nom:        document.getElementById('edit-nom').value.trim(),
+        nom: document.getElementById('edit-nom').value.trim(),
         descripcio: document.getElementById('edit-descripcio').value.trim(),
-        categoria:  obtenirCategoria(),
-        cp:         document.getElementById('edit-cp').value.trim(),
-        estat:      document.getElementById('edit-estat').value,
-        imatge:     document.getElementById('edit-imatge').value.trim()
+        categoria: obtenirCategoria(),
+        cp: document.getElementById('edit-cp').value.trim(),
+        estat: document.getElementById('edit-estat').value,
+        imatge: document.getElementById('edit-imatge').value.trim()
     };
 
     if (!body.nom || !body.categoria || !body.cp) {
@@ -349,7 +330,7 @@ async function carregarCategories() {
 }
 
 function omplirSelectCategoria(valorActual) {
-    const sel  = document.getElementById('edit-categoria');
+    const sel = document.getElementById('edit-categoria');
     const nova = document.getElementById('edit-categoria-nova');
     sel.innerHTML = '';
 
@@ -406,18 +387,17 @@ async function carregarUsuaris() {
 function renderitzarTaulaUsuaris(llista) {
     const cont = document.getElementById('taula-usuaris');
     if (llista.length === 0) {
-        cont.innerHTML = '<p style="color:#6c757d;">Cap usuari.</p>';
+        cont.innerHTML = '<p>Cap usuari.</p>';
         return;
     }
 
     const taula = document.createElement('table');
-    taula.style.cssText = 'width:100%;border-collapse:collapse;font-size:.9rem;';
     taula.innerHTML = `
         <thead>
-            <tr style="background:var(--color-primary);color:#fff;text-align:left;">
-                <th style="padding:.6rem .8rem;">ID</th>
-                <th style="padding:.6rem .8rem;">Nom d'usuari</th>
-                <th style="padding:.6rem .8rem;">Rol</th>
+            <tr>
+                <th>ID</th>
+                <th>Nom d'usuari</th>
+                <th>Rol</th>
             </tr>
         </thead>
         <tbody></tbody>`;
@@ -427,13 +407,13 @@ function renderitzarTaulaUsuaris(llista) {
         const tr = document.createElement('tr');
         tr.style.background = i % 2 === 0 ? '' : 'rgba(0,0,0,.03)';
         tr.innerHTML = `
-            <td style="padding:.5rem .8rem;color:#6c757d;">${u.id}</td>
-            <td style="padding:.5rem .8rem;font-weight:600;">${u.username}</td>
-            <td style="padding:.5rem .8rem;">
+            <td>${u.id}</td>
+            <td>${u.username}</td>
+            <td>
                 <span style="background:${u.is_admin ? '#2d6a4f' : '#dee2e6'};
                              color:${u.is_admin ? '#fff' : '#333'};
                              border-radius:12px;padding:.2rem .65rem;font-size:.8rem;font-weight:600;">
-                    ${u.is_admin ? '🛠️ Admin' : '👤 Usuari'}
+                    ${u.is_admin ? 'Admin' : 'Usuari'}
                 </span>
             </td>`;
         cos.appendChild(tr);

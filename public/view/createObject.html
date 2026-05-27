@@ -13,14 +13,14 @@
 
     <!-- Vista: no logejat -->
     <div id="vista-no-login" style="display:none; text-align:center; padding:4rem 1rem;">
-        <p style="font-size:1.3rem; margin-bottom:.75rem;">🔒 Has d'iniciar sessió per publicar objectes.</p>
-        <p>Fes clic a <strong>🔑 Entrar</strong> a la barra superior.</p>
+        <p style="font-size:1.3rem; margin-bottom:.75rem;">Has d'iniciar sessió per publicar objectes.</p>
+        <p>Fes clic a <strong>Entrar</strong> a la barra superior.</p>
     </div>
 
     <!-- Vista: logejat -->
     <div id="vista-crear" style="display:none;">
-        <h2>➕ Publicar un objecte nou</h2>
-        <p style="color:#6c757d; margin-bottom:1.5rem;">Omple el formulari per oferir un objecte a la comunitat.</p>
+        <h2>Publicar un objecte nou</h2>
+        <p>Omple el formulari per oferir un objecte a la comunitat.</p>
 
         <section class="panell-seccio">
             <form id="form-crear">
@@ -53,18 +53,18 @@
                 </div>
 
                 <p id="crear-error" class="form-error"></p>
-                <p id="crear-ok" style="color:#2d6a4f; font-weight:600; display:none;">✅ Objecte publicat correctament!</p>
+                <p id="crear-ok">Objecte publicat correctament!</p>
 
-                <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:.25rem;">
-                    <button type="submit" class="btn-primary">📤 Publicar objecte</button>
+                <div>
+                    <button type="submit" class="btn-primary">Publicar objecte</button>
                     <button type="button" id="btn-reset" style="background:#e9ecef; border:none; border-radius:6px; padding:.6rem 1rem; cursor:pointer;">Netejar</button>
                 </div>
             </form>
         </section>
 
-        <section style="margin-top:2rem; background:#f8f9fa; border-radius:10px; padding:1.25rem; max-width:480px;">
-            <h3 style="margin:0 0 .5rem;">💡 Consells</h3>
-            <ul style="margin:0; padding-left:1.25rem; line-height:1.7; color:#495057; font-size:.9rem;">
+        <section>
+            <h3>Consells</h3>
+            <ul>
                 <li>Usa un nom clar i descriptiu.</li>
                 <li>Afegeix una foto per rebre més sol·licituds.</li>
                 <li>El CP ajuda als veïns a trobar objectes propers.</li>
@@ -128,14 +128,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     inicialitzar();
 
     document.getElementById('crear-imatge').addEventListener('input', function () {
-        const url   = this.value.trim();
+        const url = this.value.trim();
         const wrap  = document.getElementById('preview-wrap');
-        const img   = document.getElementById('preview-img');
+        const img = document.getElementById('preview-img');
         if (url) {
-            img.src            = url;
+            img.src = url;
             wrap.style.display = 'block';
-            img.onerror        = () => { wrap.style.display = 'none'; };
-            img.onload         = () => { wrap.style.display = 'block'; };
+            img.onerror = () => { wrap.style.display = 'none'; };
+            img.onload = () => { wrap.style.display = 'block'; };
         } else {
             wrap.style.display = 'none';
         }
@@ -144,16 +144,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('btn-reset').addEventListener('click', () => {
         document.getElementById('form-crear').reset();
         document.getElementById('crear-error').textContent = '';
-        document.getElementById('crear-ok').style.display  = 'none';
+        document.getElementById('crear-ok').style.display = 'none';
         document.getElementById('preview-wrap').style.display = 'none';
     });
 
     document.getElementById('form-crear').addEventListener('submit', async e => {
         e.preventDefault();
         const errorEl = document.getElementById('crear-error');
-        const okEl    = document.getElementById('crear-ok');
+        const okEl = document.getElementById('crear-ok');
         errorEl.textContent = '';
-        okEl.style.display  = 'none';
+        okEl.style.display = 'none';
 
         const body = {
             nom: document.getElementById('crear-nom').value.trim(),
