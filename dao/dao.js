@@ -32,6 +32,10 @@ export const ObjectModel = {
         `, [id]);
     },
 
+    async getDistinctCategories() {
+        return await db.all("SELECT DISTINCT categoria FROM objects WHERE categoria IS NOT NULL ORDER BY categoria");
+    },
+
     async getByUserId(userId) {
         return await db.all("SELECT * FROM objects WHERE user_id = ? ORDER BY id DESC", [userId]);
     },

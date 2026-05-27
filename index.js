@@ -58,9 +58,9 @@ APP.post('/api/login', async (req, res) => {
     try {
         const user = await UserModel.verifyPassword(username, password);
         if (!user) return res.status(401).json({ error: 'Credencials incorrectes' });
-        req.session.userId   = user.id;
+        req.session.userId = user.id;
         req.session.username = user.username;
-        req.session.isAdmin  = !!user.is_admin;
+        req.session.isAdmin = !!user.is_admin;
         res.json({ id: user.id, username: user.username, isAdmin: !!user.is_admin });
     } catch (err) {
         console.error(err);
@@ -85,9 +85,8 @@ APP.get('/api/me', (req, res) => {
 // GET /api/categories — llista de categories úniques existents a la BD
 APP.get('/api/categories', async (req, res) => {
     try {
-        const rows = await ObjectModel.getAll();
-        const cats = [...new Set(rows.map(o => o.categoria))].filter(Boolean).sort();
-        res.json(cats);
+        const rows = await ObjectModel.getDistinctCategories();
+        res.json(rows.map(r => r.categoria));
     } catch (err) {
         res.status(500).json({ error: 'Error intern del servidor' });
     }
@@ -108,8 +107,7 @@ APP.get('/api/objects', async (req, res) => {
 });
 
 // GET /api/objects/meus — objectes de l'usuari en sessió
-APP.get('/api/objects/meus', async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ error: 'Cal iniciar sessió' });
+APP.get('/api/objects/meus', requereixSessio, async (req, res) => {
     try {
         const data = await ObjectModel.getByUserId(req.session.userId);
         res.json(data);
@@ -131,8 +129,7 @@ APP.get('/api/objects/:id', async (req, res) => {
 
 // POST /api/objects → Crear un objeto nuevo
 // Body (JSON): { nom, descripcio, categoria, cp, estat, imatge }
-APP.post('/api/objects', async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ error: 'Cal iniciar sessió per crear objectes' });
+APP.post('/api/objects', requereixSessio, async (req, res) => {
     const { nom, descripcio, categoria, cp, estat, imatge } = req.body;
     if (!nom || !categoria || !cp) return res.status(400).json({ error: 'nom, categoria i cp són obligatoris' });
     try {
