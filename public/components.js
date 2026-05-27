@@ -36,20 +36,54 @@ function initAuthUI() {
   // Comprovar sessió actual
   fetch('/api/me').then(r => r.json()).then(data => {
     if (data.loggedIn) {
-      mostrarLogout(data.username);
+      mostrarLogout(data.username, data.isAdmin);
     }
   });
 
   function mostrarLogin() {
     btnObrir.style.display = 'inline-block';
     btnLogout.style.display = 'none';
-    navInfo.textContent = '';
+    navInfo.innerHTML = '';
+    ocultarEnllacAdmin();
   }
 
-  function mostrarLogout(username) {
+  function mostrarLogout(username, isAdmin) {
     btnObrir.style.display = 'none';
     btnLogout.style.display = 'inline-block';
-    navInfo.textContent = '👤 ' + username;
+
+    if (isAdmin) {
+      // Badge admin + nom d'usuari
+      navInfo.innerHTML = `<span style="
+          background:#2d6a4f;color:#fff;border-radius:12px;
+          padding:.15rem .55rem;font-size:.78rem;font-weight:700;
+          margin-right:.4rem;vertical-align:middle;">Ets Admin </span>${username}`;
+      mostrarEnllacAdmin();
+    } else {
+      navInfo.textContent = username;
+      ocultarEnllacAdmin();
+    }
+  }
+
+  // Afegir/treure l'enllaç al panell admin al nav
+  function mostrarEnllacAdmin() {
+    if (document.getElementById('nav-link-admin')) return; // ja existeix
+    const nav = document.querySelector('nav');
+    if (!nav) return;
+    const a = document.createElement('a');
+    a.id = 'nav-link-admin';
+    a.href = '/view/admin.html';
+    a.textContent = 'Admin';
+    a.style.cssText = 'font-weight:700;color:#2d6a4f;';
+    // Insertar després del darrer a, abans del botó mode fosc
+    const boto = document.getElementById('boto-mode-fosc');
+    nav.insertBefore(a, boto);
+    // Marcar actiu si estem a la pàgina admin
+    if (window.location.href === a.href) a.classList.add('actiu');
+  }
+
+  function ocultarEnllacAdmin() {
+    const a = document.getElementById('nav-link-admin');
+    if (a) a.remove();
   }
 
   // Pàgines que requereixen recarregar en canviar la sessió
@@ -59,7 +93,8 @@ function initAuthUI() {
         path.includes('createObject') ||
         path.includes('solicituds') ||
         path.includes('catalegGeneral') ||
-        path.includes('detallsProducte')) {
+        path.includes('detallsProducte') ||
+        path.includes('admin')) {
       window.location.reload();
     }
   }
@@ -78,7 +113,7 @@ function initAuthUI() {
     tab.addEventListener('click', () => {
       tabs.forEach(t => t.classList.remove('activa'));
       tab.classList.add('activa');
-      document.getElementById('form-login').style.display    = tab.dataset.tab === 'login'   ? 'flex' : 'none';
+      document.getElementById('form-login').style.display = tab.dataset.tab === 'login'   ? 'flex' : 'none';
       document.getElementById('form-registre').style.display = tab.dataset.tab === 'registre' ? 'flex' : 'none';
     });
   });
@@ -99,7 +134,7 @@ function initAuthUI() {
     const data = await res.json();
     if (!res.ok) { errorEl.textContent = data.error; return; }
     modal.style.display = 'none';
-    mostrarLogout(data.username);
+    mostrarLogout(data.username, data.isAdmin);
     recarregarSiCal();
   });
 
@@ -119,7 +154,7 @@ function initAuthUI() {
     const data = await res.json();
     if (!res.ok) { errorEl.textContent = data.error; return; }
     modal.style.display = 'none';
-    mostrarLogout(data.username);
+    mostrarLogout(data.username, data.isAdmin);
     recarregarSiCal();
   });
 
@@ -128,7 +163,7 @@ function initAuthUI() {
     await fetch('/api/logout', { method: 'POST' });
     mostrarLogin();
     const path = window.location.pathname;
-    if (path.includes('panellUsuari') || path.includes('createObject')) {
+    if (path.includes('panellUsuari') || path.includes('createObject') || path.includes('admin')) {
       window.location.href = '/index.html';
     } else {
       window.location.reload();
