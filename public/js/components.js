@@ -16,6 +16,9 @@ async function loadComponents() {
       if (a.href === window.location.href) a.classList.add('actiu');
     });
 
+    // Connecta el botó de mode fosc ARA que el header ja és al DOM
+    if (typeof initBotoModeFosc === 'function') initBotoModeFosc();
+
     initAuthUI();
 
   } catch (err) {
@@ -52,7 +55,6 @@ function initAuthUI() {
     btnLogout.style.display = 'inline-block';
 
     if (isAdmin) {
-      // Nom d'usuari
       navInfo.innerHTML = username;
       mostrarEnllacAdmin();
     } else {
@@ -61,19 +63,16 @@ function initAuthUI() {
     }
   }
 
-  // Afegir/treure l'enllaç al panell admin al nav
   function mostrarEnllacAdmin() {
-    if (document.getElementById('nav-link-admin')) return; // ja existeix
+    if (document.getElementById('nav-link-admin')) return;
     const nav = document.querySelector('nav');
     if (!nav) return;
     const a = document.createElement('a');
     a.id = 'nav-link-admin';
     a.href = '/view/admin.html';
     a.textContent = 'Panell Admin';
-    // Insertar després del darrer a, abans del botó mode fosc
     const boto = document.getElementById('boto-mode-fosc');
     nav.insertBefore(a, boto);
-    // Marcar actiu si estem a la pàgina admin
     if (window.location.href === a.href) a.classList.add('actiu');
   }
 
@@ -82,7 +81,6 @@ function initAuthUI() {
     if (a) a.remove();
   }
 
-  // Pàgines que requereixen recarregar en canviar la sessió
   function recarregarSiCal() {
     const path = window.location.pathname;
     if (path.includes('panellUsuari') ||
@@ -104,17 +102,15 @@ function initAuthUI() {
   btnTancar.addEventListener('click', () => modal.style.display = 'none');
   modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
 
-  // Pestanyes login / registre
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       tabs.forEach(t => t.classList.remove('activa'));
       tab.classList.add('activa');
-      document.getElementById('form-login').style.display = tab.dataset.tab === 'login'   ? 'flex' : 'none';
+      document.getElementById('form-login').style.display    = tab.dataset.tab === 'login'    ? 'flex' : 'none';
       document.getElementById('form-registre').style.display = tab.dataset.tab === 'registre' ? 'flex' : 'none';
     });
   });
 
-  // Login
   formLogin.addEventListener('submit', async e => {
     e.preventDefault();
     const errorEl = document.getElementById('login-error');
@@ -134,7 +130,6 @@ function initAuthUI() {
     recarregarSiCal();
   });
 
-  // Registre
   formRegistre.addEventListener('submit', async e => {
     e.preventDefault();
     const errorEl = document.getElementById('reg-error');
@@ -154,7 +149,6 @@ function initAuthUI() {
     recarregarSiCal();
   });
 
-  // Logout
   btnLogout.addEventListener('click', async () => {
     await fetch('/api/logout', { method: 'POST' });
     mostrarLogin();
