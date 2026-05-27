@@ -11,8 +11,8 @@
 <body>
 <main>
     <!-- Vista: no logejat -->
-    <div id="vista-no-login" style="display:none; text-align:center; padding:3rem 1rem;">
-        <p style="font-size:1.2rem;">Has d'iniciar sessió per veure el teu panell.</p>
+    <div id="vista-no-login" style="display:none;">
+        <p>Has d'iniciar sessió per veure el teu panell.</p>
         <p>Fes clic a <strong>Entrar</strong> a la barra superior.</p>
     </div>
 
@@ -20,9 +20,9 @@
     <div id="vista-panell" style="display:none;">
         <h2>Hola, <span id="panell-username"></span>!</h2>
 
-        <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:2rem;">
+        <div>
             <a href="createObject.html" class="btn-primary">Publicar objecte nou</a>
-            <a href="solicituds.html">Veure les meves sol·licituds</a>
+            <a href="solicituds.html" class="btn-primary">Veure les meves sol·licituds</a>
         </div>
 
         <!-- Sol·licituds rebudes -->
@@ -129,7 +129,7 @@ function renderitzarObjectes() {
                 <p><strong>Categoria:</strong> ${obj.categoria} &nbsp;|&nbsp; <strong>CP:</strong> ${obj.cp}</p>
                 <p class="estat estat-${obj.estat}">${obj.estat.toUpperCase()}</p>
                 <div class="card-accions">
-                    <button class="btn-editar"   data-id="${obj.id}">Editar</button>
+                    <button class="btn-editar" data-id="${obj.id}">Editar</button>
                     <button class="btn-eliminar" data-id="${obj.id}">Eliminar</button>
                 </div>
             </div>`;
@@ -166,17 +166,17 @@ function renderitzarRebudes(llista) {
         const div = document.createElement('div');
         div.style.cssText = `background:${colors[s.estat] || '#f8f9fa'}; border-radius:8px; padding:.85rem 1rem; margin-bottom:.6rem; display:flex; flex-wrap:wrap; align-items:center; gap:.5rem;`;
         div.innerHTML = `
-            <span style="flex:1; min-width:160px;">
+            <span>
                 <strong>${s.nom}</strong>
-                <small style="display:block; color:#6c757d; margin-top:.1rem;">
+                <small>
                     Per <strong>${s.solicitant}</strong> · ${new Date(s.created_at).toLocaleDateString('ca-ES')}
                 </small>
-                ${s.missatge ? `<small style="display:block; color:#495057; margin-top:.2rem; font-style:italic;">"${s.missatge}"</small>` : ''}
+                ${s.missatge ? `<small>"${s.missatge}"</small>` : ''}
             </span>
-            <span class="estat estat-${s.estat}" style="white-space:nowrap;">${s.estat.toUpperCase()}</span>
+            <span class="estat estat-${s.estat}">${s.estat.toUpperCase()}</span>
             ${s.estat === 'pendent' ? `
-                <button class="btn-acceptar btn-primary" data-id="${s.id}" style="padding:.35rem .7rem; font-size:.82rem;">Acceptar</button>
-                <button class="btn-rebutjar" data-id="${s.id}" style="background:#ffe0e0; color:#c1121f; border:none; border-radius:6px; padding:.35rem .7rem; cursor:pointer; font-size:.82rem;">❌ Rebutjar</button>
+                <button class="btn-acceptar btn-primary" data-id="${s.id}">Acceptar</button>
+                <button class="btn-rebutjar" data-id="${s.id}">Rebutjar</button>    
             ` : ''}
         `;
         if (s.estat === 'pendent') {
