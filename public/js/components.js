@@ -52,11 +52,8 @@ function initAuthUI() {
     btnLogout.style.display = 'inline-block';
 
     if (isAdmin) {
-      // Badge admin + nom d'usuari
-      navInfo.innerHTML = `<span style="
-          background:#2d6a4f;color:#fff;border-radius:12px;
-          padding:.15rem .55rem;font-size:.78rem;font-weight:700;
-          margin-right:.4rem;vertical-align:middle;">Ets Admin </span>${username}`;
+      // Nom d'usuari
+      navInfo.innerHTML = username;
       mostrarEnllacAdmin();
     } else {
       navInfo.textContent = username;
@@ -72,8 +69,7 @@ function initAuthUI() {
     const a = document.createElement('a');
     a.id = 'nav-link-admin';
     a.href = '/view/admin.html';
-    a.textContent = 'Admin';
-    a.style.cssText = 'font-weight:700;color:#2d6a4f;';
+    a.textContent = 'Panell Admin';
     // Insertar després del darrer a, abans del botó mode fosc
     const boto = document.getElementById('boto-mode-fosc');
     nav.insertBefore(a, boto);
