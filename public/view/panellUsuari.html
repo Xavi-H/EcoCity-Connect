@@ -5,18 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panell Usuari - EcoCity Connect</title>
     <link rel="stylesheet" href="./../style/style.css">
-    <script src="./../components.js" defer></script>
-    <script src="./../modeFosc.js" defer></script>
+    <script src="./../js/components.js" defer></script>
+    <script src="./../js/modeFosc.js" defer></script>
 </head>
 <body>
 <main>
-    <!-- Estat: no logejat -->
+    <!-- Vista: no logejat -->
     <div id="vista-no-login" style="display:none; text-align:center; padding:3rem 1rem;">
         <p style="font-size:1.2rem;">Has d'iniciar sessió per veure el teu panell.</p>
         <p>Fes clic a <strong>🔑 Entrar</strong> a la barra superior.</p>
     </div>
 
-    <!-- Estat: logejat -->
+    <!-- Vista: logejat -->
     <div id="vista-panell" style="display:none;">
         <h2>👤 Hola, <span id="panell-username"></span>!</h2>
 
@@ -25,7 +25,7 @@
             <a href="solicituds.html"   style="background:#457b9d; color:#fff; border:none; border-radius:6px; padding:.6rem 1rem; cursor:pointer; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block;">📩 Veure les meves sol·licituds</a>
         </div>
 
-        <!-- Sol·licituds rebudes (sobre els meus objectes) -->
+        <!-- Sol·licituds rebudes -->
         <section class="panell-seccio">
             <h3>📬 Sol·licituds rebudes</h3>
             <p style="color:#6c757d; font-size:.9rem; margin-bottom:.75rem;">Altres usuaris han sol·licitat els teus objectes.</p>
@@ -73,10 +73,11 @@
             </form>
         </div>
     </div>
-
 </main>
 
-<script>
+<script type="module">
+import { carregarCategories, omplirSelectCategoriaEdit, obtenirCategoriaEdit, obrirModalEditar, tancarModalEditar } from './../js/objectes-editor.js';
+
 let meusObjectes = [];
 
 async function inicialitzar() {
@@ -93,7 +94,8 @@ async function inicialitzar() {
     carregarSolicitudsRebudes();
 }
 
-// ── Els meus objectes ──────────────────────────────────────────
+// Els meus objectes
+
 async function carregarObjectes() {
     const el = document.getElementById('meus-carregant');
     el.style.display = 'block';
@@ -131,13 +133,14 @@ function renderitzarObjectes() {
                     <button class="btn-eliminar" data-id="${obj.id}">🗑️ Eliminar</button>
                 </div>
             </div>`;
-        card.querySelector('.btn-editar').addEventListener('click',   () => obrirEditar(obj.id));
+        card.querySelector('.btn-editar').addEventListener('click',   () => obrirModalEditar(obj, 'edit-error'));
         card.querySelector('.btn-eliminar').addEventListener('click', () => eliminar(obj.id, obj.nom));
         cont.appendChild(card);
     });
 }
 
-// ── Sol·licituds rebudes ───────────────────────────────────────
+// Sol·licituds rebudes 
+
 async function carregarSolicitudsRebudes() {
     const el = document.getElementById('rebudes-carregant');
     el.style.display = 'block';
@@ -194,24 +197,9 @@ async function canviarEstat(id, estat) {
     carregarSolicitudsRebudes();
 }
 
-// Editar objecte
-function obrirEditar(id) {
-    const obj = meusObjectes.find(o => o.id === id);
-    if (!obj) return;
-    document.getElementById('edit-id').value          = obj.id;
-    document.getElementById('edit-nom').value         = obj.nom;
-    document.getElementById('edit-descripcio').value  = obj.descripcio || '';
-    omplirSelectCategoriaEdit(obj.categoria);
-    document.getElementById('edit-cp').value          = obj.cp;
-    document.getElementById('edit-estat').value       = obj.estat;
-    document.getElementById('edit-imatge').value      = obj.imatge || '';
-    document.getElementById('edit-error').textContent = '';
-    document.getElementById('modal-editar').style.display = 'flex';
-}
+// Modal editar
 
-document.getElementById('btn-cancel-edit').addEventListener('click', () => {
-    document.getElementById('modal-editar').style.display = 'none';
-});
+document.getElementById('btn-cancel-edit').addEventListener('click', tancarModalEditar);
 
 document.getElementById('form-editar').addEventListener('submit', async e => {
     e.preventDefault();
@@ -225,69 +213,19 @@ document.getElementById('form-editar').addEventListener('submit', async e => {
         estat:      document.getElementById('edit-estat').value,
         imatge:     document.getElementById('edit-imatge').value.trim()
     };
-    const res  = await fetch(`/api/objects/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    const res  = await fetch(`/api/objects/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const data = await res.json();
     if (!res.ok) { errorEl.textContent = data.error; return; }
-    document.getElementById('modal-editar').style.display = 'none';
+    tancarModalEditar();
     await carregarObjectes();
 });
 
-// Eliminar objecte
 async function eliminar(id, nom) {
     if (!confirm(`Eliminar "${nom}"?`)) return;
-    const res = await fetch(`/api/objects/${id}`, { method:'DELETE' });
+    const res = await fetch(`/api/objects/${id}`, { method: 'DELETE' });
     if (!res.ok) { alert((await res.json()).error); return; }
     await carregarObjectes();
 }
-
-// ── Categories dinàmiques (modal editar) ─────────────────────
-let categoriesCache = [];
-
-async function carregarCategories() {
-    try {
-        categoriesCache = await fetch('/api/categories').then(r => r.json());
-    } catch { categoriesCache = []; }
-}
-
-function omplirSelectCategoriaEdit(valorActual) {
-    const sel  = document.getElementById('edit-categoria');
-    const nova = document.getElementById('edit-categoria-nova');
-    sel.innerHTML = '';
-    categoriesCache.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat; opt.textContent = cat;
-        sel.appendChild(opt);
-    });
-    const optAltra = document.createElement('option');
-    optAltra.value = '__altra__'; optAltra.textContent = '+ Altra categoria...';
-    sel.appendChild(optAltra);
-
-    if (valorActual && !categoriesCache.includes(valorActual)) {
-        const optExtra = document.createElement('option');
-        optExtra.value = valorActual; optExtra.textContent = valorActual;
-        sel.insertBefore(optExtra, optAltra);
-        sel.value = valorActual;
-    } else {
-        sel.value = valorActual || (categoriesCache[0] || '');
-    }
-    nova.style.display = 'none';
-    nova.value = '';
-}
-
-function obtenirCategoriaEdit() {
-    const sel = document.getElementById('edit-categoria');
-    if (sel.value === '__altra__') {
-        return document.getElementById('edit-categoria-nova').value.trim();
-    }
-    return sel.value.trim();
-}
-
-document.getElementById('edit-categoria').addEventListener('change', () => {
-    const nova = document.getElementById('edit-categoria-nova');
-    const isAltra = document.getElementById('edit-categoria').value === '__altra__';
-    nova.style.display = isAltra ? 'block' : 'none';
-    if (isAltra) nova.focus();
-});
 
 document.addEventListener('DOMContentLoaded', async () => {
     await carregarCategories();

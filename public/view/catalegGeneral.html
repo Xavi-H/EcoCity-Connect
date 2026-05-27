@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catàleg General - EcoCity Connect</title>
     <link rel="stylesheet" href="./../style/style.css">
-    <script src="./../components.js" defer></script>
-    <script src="./../modeFosc.js" defer></script>
+    <script src="./../js/components.js" defer></script>
+    <script src="./../js/modeFosc.js" defer></script>
 </head>
 <body>
 <main>
@@ -63,7 +63,7 @@
     </div>
 </div>
 
-<!-- Modal sol·licitar producte-->
+<!-- Modal sol·licitar producte -->
 <div id="modal-solicitar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:8000;align-items:center;justify-content:center;">
     <div class="modal-auth-box">
         <button id="btn-tancar-solicitar" class="modal-close-btn" style="position:absolute;top:.75rem;right:.75rem;">✕</button>
@@ -82,7 +82,9 @@
     </div>
 </div>
 
-<script>
+<script type="module">
+import { carregarCategories, omplirSelectCategoriaEdit, obtenirCategoriaEdit, obrirModalEditar, tancarModalEditar } from './../js/objectes-editor.js';
+
 let totsElsObjectes = [];
 let sessioUserId = null;
 
@@ -126,16 +128,17 @@ function renderitzarObjectes(llista) {
                 <p><strong>Categoria:</strong> ${obj.categoria} &nbsp;|&nbsp; <strong>CP:</strong> ${obj.cp}</p>
                 <p class="estat estat-${obj.estat}">${obj.estat.toUpperCase()}</p>
                 <div class="card-accions">
+                    <a href="detallsProducte.html?id=${obj.id}" class="btn-detalls">Veure detalls</a>
                     ${esMeu
-                        ? `<button class="btn-editar" data-id="${obj.id}">✏️ Editar</button>
-                           <button class="btn-eliminar" data-id="${obj.id}">🗑️ Eliminar</button>`
-                        : `<button class="btn-sol-licitar" data-id="${obj.id}" data-nom="${obj.nom}" ${obj.estat !== 'disponible' ? 'disabled' : ''}>📩 Sol·licitar</button>`
+                        ? `<button class="btn-editar" data-id="${obj.id}">Editar</button>
+                           <button class="btn-eliminar" data-id="${obj.id}">Eliminar</button>`
+                        : `<button class="btn-sol-licitar" data-id="${obj.id}" data-nom="${obj.nom}" ${obj.estat !== 'disponible' ? 'disabled' : ''}>Sol·licitar</button>`
                     }
                 </div>
             </div>`;
 
         if (esMeu) {
-            card.querySelector('.btn-editar').addEventListener('click', () => obrirModal(obj.id));
+            card.querySelector('.btn-editar').addEventListener('click',   () => obrirModalEditar(obj, 'edit-errors'));
             card.querySelector('.btn-eliminar').addEventListener('click', () => eliminar(obj.id, obj.nom));
         } else {
             card.querySelector('.btn-sol-licitar').addEventListener('click', () => obrirModalSolicitar(obj.id, obj.nom));
@@ -144,60 +147,12 @@ function renderitzarObjectes(llista) {
     });
 }
 
-// Sol·licitar 
-function obrirModalSolicitar(objectId, nomObjecte) {
-    // Si no ha iniciat sessió, obrim el modal d'auth que ja existeix al header
-    if (!sessioUserId) {
-        const btnAuth = document.getElementById('btn-obrir-auth');
-        if (btnAuth) btnAuth.click();
-        return;
-    }
-    document.getElementById('solicitar-object-id').value = objectId;
-    document.getElementById('solicitar-nom-objecte').textContent = nomObjecte;
-    document.getElementById('solicitar-missatge').value = '';
-    document.getElementById('solicitar-error').textContent = '';
-    document.getElementById('modal-solicitar').style.display = 'flex';
-}
-
-document.getElementById('btn-tancar-solicitar').addEventListener('click', () => {
-    document.getElementById('modal-solicitar').style.display = 'none';
-});
-document.getElementById('btn-cancel-solicitar').addEventListener('click', () => {
-    document.getElementById('modal-solicitar').style.display = 'none';
-});
-document.getElementById('modal-solicitar').addEventListener('click', e => {
-    if (e.target === document.getElementById('modal-solicitar'))
-        document.getElementById('modal-solicitar').style.display = 'none';
-});
-
-document.getElementById('btn-confirmar-solicitar').addEventListener('click', async () => {
-    const objectId = parseInt(document.getElementById('solicitar-object-id').value);
-    const missatge = document.getElementById('solicitar-missatge').value.trim();
-    const errorEl  = document.getElementById('solicitar-error');
-    errorEl.textContent = '';
-
-    const res = await fetch('/api/solicituds', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ object_id: objectId, missatge })
-    });
-    const data = await res.json();
-
-    if (!res.ok) {
-        errorEl.textContent = data.error;
-        return;
-    }
-
-    document.getElementById('modal-solicitar').style.display = 'none';
-
-    // Mostrar confirmació i oferir anar a solicituds
-    const anar = confirm(`✅ Sol·licitud enviada correctament!\n\nVols veure les teves sol·licituds?`);
-    if (anar) window.location.href = '/view/solicituds.html';
-});
-
+// Filtres
 
 function omplirSelectCategories() {
     const sel = document.getElementById('filtre-categoria');
+    // Evitar duplicats si es recarrega
+    [...sel.options].filter(o => o.value !== '').forEach(o => o.remove());
     [...new Set(totsElsObjectes.map(o => o.categoria))].sort().forEach(cat => {
         const opt = document.createElement('option');
         opt.value = cat; opt.textContent = cat;
@@ -206,63 +161,17 @@ function omplirSelectCategories() {
 }
 
 function aplicarFiltres() {
-    const cat = document.getElementById('filtre-categoria').value;
+    const cat   = document.getElementById('filtre-categoria').value;
     const estat = document.getElementById('filtre-estat').value;
-    const cp = document.getElementById('filtre-cp').value.trim();
+    const cp    = document.getElementById('filtre-cp').value.trim();
     const cerca = document.getElementById('filtre-cerca').value.toLowerCase().trim();
     renderitzarObjectes(totsElsObjectes.filter(o =>
-        (!cat || o.categoria === cat) &&
+        (!cat   || o.categoria === cat) &&
         (!estat || o.estat === estat) &&
-        (!cp || o.cp === cp) &&
+        (!cp    || o.cp === cp) &&
         (!cerca || o.nom.toLowerCase().includes(cerca) || (o.descripcio || '').toLowerCase().includes(cerca))
     ));
 }
-
-async function eliminar(id, nom) {
-    if (!confirm(`Eliminar "${nom}"?`)) return;
-    const res = await fetch(`/api/objects/${id}`, { method: 'DELETE' });
-    if (!res.ok) { alert((await res.json()).error); return; }
-    totsElsObjectes = totsElsObjectes.filter(o => o.id !== id);
-    aplicarFiltres();
-}
-
-function obrirModal(id) {
-    const obj = totsElsObjectes.find(o => o.id === id);
-    if (!obj) return;
-    document.getElementById('edit-id').value = obj.id;
-    document.getElementById('edit-nom').value = obj.nom;
-    document.getElementById('edit-descripcio').value = obj.descripcio || '';
-    omplirSelectCategoriaEdit(obj.categoria);
-    document.getElementById('edit-cp').value = obj.cp;
-    document.getElementById('edit-estat').value = obj.estat;
-    document.getElementById('edit-imatge').value = obj.imatge || '';
-    document.getElementById('edit-errors').textContent = '';
-    document.getElementById('modal-editar').style.display = 'flex';
-}
-
-document.getElementById('btn-cancel-editar').addEventListener('click', () => {
-    document.getElementById('modal-editar').style.display = 'none';
-});
-
-document.getElementById('formulari-editar').addEventListener('submit', async e => {
-    e.preventDefault();
-    const id   = parseInt(document.getElementById('edit-id').value);
-    const body = {
-        nom: document.getElementById('edit-nom').value.trim(),
-        descripcio: document.getElementById('edit-descripcio').value.trim(),
-        categoria:  obtenirCategoriaEdit(),
-        cp: document.getElementById('edit-cp').value.trim(),
-        estat: document.getElementById('edit-estat').value,
-        imatge: document.getElementById('edit-imatge').value.trim()
-    };
-    const res = await fetch(`/api/objects/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    const data = await res.json();
-    if (!res.ok) { document.getElementById('edit-errors').textContent = data.error; return; }
-    const idx = totsElsObjectes.findIndex(o => o.id === id);
-    if (idx !== -1) totsElsObjectes[idx] = { ...totsElsObjectes[idx], ...data };
-    document.getElementById('modal-editar').style.display = 'none';
-    aplicarFiltres();
-});
 
 document.getElementById('filtre-categoria').addEventListener('change', aplicarFiltres);
 document.getElementById('filtre-estat').addEventListener('change', aplicarFiltres);
@@ -276,57 +185,84 @@ document.getElementById('btn-netejar-filtres').addEventListener('click', () => {
     renderitzarObjectes(totsElsObjectes);
 });
 
-// Categories dinàmiques (modal editar) 
-let categoriesCache = [];
+// Eliminar 
 
-async function carregarCategories() {
-    try {
-        categoriesCache = await fetch('/api/categories').then(r => r.json());
-    } catch { categoriesCache = []; }
+async function eliminar(id, nom) {
+    if (!confirm(`Eliminar "${nom}"?`)) return;
+    const res = await fetch(`/api/objects/${id}`, { method: 'DELETE' });
+    if (!res.ok) { alert((await res.json()).error); return; }
+    totsElsObjectes = totsElsObjectes.filter(o => o.id !== id);
+    aplicarFiltres();
 }
 
-function omplirSelectCategoriaEdit(valorActual) {
-    const sel = document.getElementById('edit-categoria');
-    const nova = document.getElementById('edit-categoria-nova');
-    sel.innerHTML = '';
-    categoriesCache.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat; opt.textContent = cat;
-        sel.appendChild(opt);
-    });
-    // Opció "Altra" per escriure una categoria nova
-    const optAltra = document.createElement('option');
-    optAltra.value = '__altra__'; optAltra.textContent = '+ Altra categoria...';
-    sel.appendChild(optAltra);
+// Modal editar 
 
-    // Si la categoria actual no és a la llista, afegir-la i seleccionar-la
-    if (valorActual && !categoriesCache.includes(valorActual)) {
-        const optExtra = document.createElement('option');
-        optExtra.value = valorActual; optExtra.textContent = valorActual;
-        sel.insertBefore(optExtra, optAltra);
-        sel.value = valorActual;
-    } else {
-        sel.value = valorActual || (categoriesCache[0] || '');
-    }
-    nova.style.display = 'none';
-    nova.value = '';
-}
+document.getElementById('btn-cancel-editar').addEventListener('click', tancarModalEditar);
 
-function obtenirCategoriaEdit() {
-    const sel = document.getElementById('edit-categoria');
-    if (sel.value === '__altra__') {
-        return document.getElementById('edit-categoria-nova').value.trim();
-    }
-    return sel.value.trim();
-}
-
-document.addEventListener('change', e => {
-    if (e.target.id === 'edit-categoria') {
-        const nova = document.getElementById('edit-categoria-nova');
-        nova.style.display = e.target.value === '__altra__' ? 'block' : 'none';
-        if (e.target.value === '__altra__') nova.focus();
-    }
+document.getElementById('formulari-editar').addEventListener('submit', async e => {
+    e.preventDefault();
+    const id   = parseInt(document.getElementById('edit-id').value);
+    const body = {
+        nom: document.getElementById('edit-nom').value.trim(),
+        descripcio: document.getElementById('edit-descripcio').value.trim(),
+        categoria: obtenirCategoriaEdit(),
+        cp: document.getElementById('edit-cp').value.trim(),
+        estat: document.getElementById('edit-estat').value,
+        imatge: document.getElementById('edit-imatge').value.trim()
+    };
+    const res  = await fetch(`/api/objects/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) { document.getElementById('edit-errors').textContent = data.error; return; }
+    const idx = totsElsObjectes.findIndex(o => o.id === id);
+    if (idx !== -1) totsElsObjectes[idx] = { ...totsElsObjectes[idx], ...data };
+    tancarModalEditar();
+    aplicarFiltres();
 });
+
+// Modal sol·licitar 
+
+function obrirModalSolicitar(objectId, nomObjecte) {
+    if (!sessioUserId) {
+        const btnAuth = document.getElementById('btn-obrir-auth');
+        if (btnAuth) btnAuth.click();
+        return;
+    }
+    document.getElementById('solicitar-object-id').value = objectId;
+    document.getElementById('solicitar-nom-objecte').textContent = nomObjecte;
+    document.getElementById('solicitar-missatge').value = '';
+    document.getElementById('solicitar-error').textContent = '';
+    document.getElementById('modal-solicitar').style.display = 'flex';
+}
+
+function tancarModalSolicitar() {
+    document.getElementById('modal-solicitar').style.display = 'none';
+}
+
+document.getElementById('btn-tancar-solicitar').addEventListener('click', tancarModalSolicitar);
+document.getElementById('btn-cancel-solicitar').addEventListener('click', tancarModalSolicitar);
+document.getElementById('modal-solicitar').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-solicitar')) tancarModalSolicitar();
+});
+
+document.getElementById('btn-confirmar-solicitar').addEventListener('click', async () => {
+    const objectId = parseInt(document.getElementById('solicitar-object-id').value);
+    const missatge = document.getElementById('solicitar-missatge').value.trim();
+    const errorEl  = document.getElementById('solicitar-error');
+    errorEl.textContent = '';
+
+    const res  = await fetch('/api/solicituds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ object_id: objectId, missatge })
+    });
+    const data = await res.json();
+    if (!res.ok) { errorEl.textContent = data.error; return; }
+
+    tancarModalSolicitar();
+    const anar = confirm('✅ Sol·licitud enviada correctament!\n\nVols veure les teves sol·licituds?');
+    if (anar) window.location.href = '/view/solicituds.html';
+});
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     await carregarCategories();
