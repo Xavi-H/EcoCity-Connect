@@ -57,7 +57,7 @@
 
             <!-- Barra d'eines -->
             <div>
-                <input type="text" id="cerca-admin" placeholder="🔍 Cercar per nom o categoria...">
+                <input type="text" id="cerca-admin" placeholder="Cercar per nom o categoria...">
                 <select id="filtre-estat-admin">
                     <option value="">Tots els estats</option>
                     <option value="disponible">Disponible</option>
@@ -112,7 +112,7 @@
 
                 <p id="edit-errors" class="form-error"></p>
 
-                <div style="display:flex;gap:.5rem;margin-top:.25rem;">
+                <div>
                     <button type="submit" class="btn-primary" id="btn-guardar">Guardar</button>
                     <button type="button" id="btn-cancel-editar">Cancel·lar</button>
                 </div>
@@ -207,13 +207,13 @@ function renderitzarTaula(llista) {
             <td><span class="estat estat-${obj.estat}">${obj.estat.toUpperCase()}</span></td>
             <td >${obj.username || '—'}</td>
             <td>
-                <button class="btn-edit btn-primary" data-id="${obj.id}">✏️ Editar</button>
-                <button class="btn-del" data-id="${obj.id}" data-nom="${obj.nom}">🗑️ Eliminar</button>
+                <button class="btn-edit btn-primary" data-id="${obj.id}">Editar</button>
+                <button class="btn-eliminar" data-id="${obj.id}" data-nom="${obj.nom}">Eliminar</button>
             </td>`;
 
         tr.querySelector('.btn-edit').addEventListener('click',
             () => obrirModalEditar(obj.id));
-        tr.querySelector('.btn-del').addEventListener('click',
+        tr.querySelector('.btn-eliminar').addEventListener('click',
             () => eliminarObjecte(obj.id, obj.nom));
         cos.appendChild(tr);
     });

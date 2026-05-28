@@ -66,7 +66,7 @@
         </article>
 
         <article>
-            <h3>🏛️ Governança</h3>
+            <h3>Governança</h3>
             <p>La plataforma incorpora un sistema de <strong>rols diferenciats</strong>: usuaris normals gestionen els seus propis objectes, i administradors poden supervisar i moderar tot el catàleg. Totes les accions destructives (eliminar, canviar estat) requereixen autenticació i autorització explícita. Les contrasenyes s'emmagatzemen amb hash bcrypt (cost 10) i mai en text pla. Els sessions expiren automàticament als 8 hores, seguint bones pràctiques de seguretat.</p>
         </article>
     </section>
@@ -108,7 +108,7 @@
         <p>L'eficiència del codi és una forma directa de sostenibilitat digital: menys instruccions = menys cicles de CPU = menys energia. Aquí detallem les principals tècniques aplicades a EcoCity Connect:</p>
 
         <article>
-            <h3>⚡ Patró DAO (Data Access Object)</h3>
+            <h3>Patró DAO (Data Access Object)</h3>
             <p>Tota la lògica de base de dades està encapsulada en un fitxer <code>dao/dao.js</code> separat del servidor. Això significa que si en el futur cal canviar de SQLite a PostgreSQL, només cal modificar un sol arxiu sense tocar cap endpoint ni cap pàgina HTML. A més, tots els models del DAO usen <strong>Prepared Statements</strong> (paràmetres <code>?</code> en les consultes SQL), que el motor de BD precompila una sola vegada i reutilitza, estalviant temps de parsing en cada crida.</p>
         </article>
 
