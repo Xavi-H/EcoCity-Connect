@@ -120,8 +120,8 @@ function renderitzarObjectes(llista) {
         const esMeu = sessioUserId && obj.user_id === sessioUserId;
         const card  = document.createElement('article');
         card.className = 'card-objeto';
+        // Per mostrar la imatge (queda millor si no es mostra): <img src="${obj.imatge || ''}" alt="${obj.nom}" onerror="this.style.display='none'">
         card.innerHTML = `
-            <img src="${obj.imatge || ''}" alt="${obj.nom}" onerror="this.style.display='none'">
             <div class="card-cos">
                 <h3>${obj.nom}</h3>
                 <p>${obj.descripcio || ''}</p>

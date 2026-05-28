@@ -445,8 +445,8 @@ footer {
 }
 
 
-/*  Modal editar */
-#modal-editar {
+/*  Modal editar i solicitar*/
+#modal-editar, #modal-solicitar {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.5);
