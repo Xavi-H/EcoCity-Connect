@@ -16,7 +16,7 @@ async function loadComponents() {
       if (a.href === window.location.href) a.classList.add('actiu');
     });
 
-    // Connecta el botó de mode fosc ARA que el header ja és al DOM
+    // Connecta el botó de mode fosc
     if (typeof initBotoModeFosc === 'function') initBotoModeFosc();
 
     initAuthUI();

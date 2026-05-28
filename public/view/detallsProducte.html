@@ -38,7 +38,7 @@
     </div>
 
     <!-- Formulari sol·licitud (inline, sota el detall) -->
-    <div id="formulari-solicitar-wrap">
+    <div id="formulari-solicitar-wrap" style="display: none;">
         <h3>Enviar sol·licitud</h3>
         <label for="missatge-solicitar-area">Missatge (opcional)</label>
         <textarea id="missatge-solicitar-area" rows="3" placeholder="Explica per a quin ús el necessites, dates aproximades..."></textarea>
@@ -119,13 +119,13 @@ function renderitzarDetall(obj) {
     if (esMeu) {
         zonaAccions.innerHTML = `
             <div class="detall-accions">
-                <span style="color:#6c757d; font-style:italic;">Aquest objecte és teu.</span>
+                <span>Aquest objecte és teu.</span>
                 <a href="panellUsuari.html" class="btn-primary">Gestionar al panell</a>
             </div>`;
     } else if (obj.estat !== 'disponible') {
         zonaAccions.innerHTML = `
             <div class="detall-accions">
-                <span style="color:#6c757d;">Aquest objecte no està disponible ara mateix.</span>
+                <span>Aquest objecte no està disponible ara mateix.</span>
             </div>`;
     } else {
         // Disponible i no és meu

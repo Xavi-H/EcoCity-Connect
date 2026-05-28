@@ -35,7 +35,7 @@ INSERT INTO users (username, password_hash, is_admin)
 VALUES ('admin', '$2b$10$Jei4lQxTRe6eoRSVcBUjZuu5df5Qqgp2XLLE4zMup/UbtbC3iG2Mm', 1);
 
 -- Dades inicials (user_id NULL = objectes de mostra sense propietari real)
-INSERT INTO objects (nom, descripcio, categoria, cp, estat, imatge, user_id) VALUES ('Taladro', 'Taladro potent.', 'Eines', '08001', 'disponible', '', NULL);
+INSERT INTO objects (nom, descripcio, categoria, cp, estat, imatge, user_id) VALUES ('Taladro', 'Taladro potent.', 'Eines', '08001', 'disponible', 'https://correos-market.ams3.cdn.digitaloceanspaces.com/prod-new/uploads/correos-marketplace-shop/1/product/255303-ynqu5t1b-edh-taladro-percutor-electrico-710w-230v-ajuste-de-velocidad-1.jpg', NULL);
 INSERT INTO objects (nom, descripcio, categoria, cp, estat, imatge, user_id) VALUES ('Bicicleta', 'Ideal per a fer una volta pel port.', 'Transport', '08003', 'prestat', '', NULL);
 INSERT INTO objects (nom, descripcio, categoria, cp, estat, imatge, user_id) VALUES ('Escala plegable', 'Escala d''alumini de 5 esglaons, lleugera i facil de guardar.', 'Eines', '08012', 'disponible', '', NULL);
 INSERT INTO objects (nom, descripcio, categoria, cp, estat, imatge, user_id) VALUES ('Projector', 'Projector HD ideal per a cinema a casa o presentacions.', 'Electronica', '08005', 'disponible', '', NULL);
