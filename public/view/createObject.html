@@ -52,7 +52,7 @@
                 </div>
 
                 <p id="crear-error" class="form-error"></p>
-                <p id="crear-ok">Objecte publicat correctament!</p>
+                <p id="crear-ok" style="display:none;">Objecte publicat correctament!</p>
 
                 <div>
                     <button type="submit" class="btn-primary">Publicar objecte</button>
@@ -124,7 +124,7 @@ function obtenirCategoria() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     await carregarSelectCategoria();
-    inicialitzar();
+    await inicialitzar();
 
     document.getElementById('crear-imatge').addEventListener('input', function () {
         const url = this.value.trim();
@@ -174,7 +174,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         okEl.style.display = 'block';
         e.target.reset();
         document.getElementById('preview-wrap').style.display = 'none';
-        setTimeout(() => okEl.style.display = 'none', 3000);
     });
 });
 </script>

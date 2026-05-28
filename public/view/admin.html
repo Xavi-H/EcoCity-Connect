@@ -256,6 +256,7 @@ function obrirModalEditar(id) {
     document.getElementById('edit-imatge').value = obj.imatge || '';
     document.getElementById('edit-errors').textContent = '';
     omplirSelectCategoria(obj.categoria);
+    document.getElementById('modal-editar').style.display = 'flex';
 }
 
 // MODAL — obrir per crear
@@ -272,6 +273,7 @@ function obrirModalCrear() {
     document.getElementById('edit-imatge').value = '';
     document.getElementById('edit-errors').textContent = '';
     omplirSelectCategoria('');
+    document.getElementById('modal-editar').style.display = 'flex';
 }
 
 function tancarModal() {
@@ -440,7 +442,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 // EVENT LISTENERS
 document.getElementById('cerca-admin').addEventListener('input', aplicarFiltres);
 document.getElementById('filtre-estat-admin').addEventListener('change', aplicarFiltres);
-document.getElementById('btn-nou-objecte').addEventListener('click', obrirModalCrear);
+document.getElementById('btn-nou-objecte').addEventListener('click', () => {
+    window.location.href = '/view/createObject.html';
+});
 document.getElementById('btn-cancel-editar').addEventListener('click', tancarModal);
 document.getElementById('btn-tancar-modal').addEventListener('click', tancarModal);
 document.getElementById('modal-editar').addEventListener('click', e => {
