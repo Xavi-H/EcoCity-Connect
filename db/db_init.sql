@@ -3,10 +3,10 @@ DROP TABLE IF EXISTS objects;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    username      TEXT NOT NULL UNIQUE,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    is_admin      INTEGER DEFAULT 0  -- 0 = usuari normal, 1 = administrador
+    is_admin INTEGER DEFAULT 0  -- 0 = usuari normal, 1 = administrador
 );
 
 CREATE TABLE objects (

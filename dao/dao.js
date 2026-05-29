@@ -118,8 +118,8 @@ export const SolicitudModel = {
                    o.id AS object_id, o.nom, o.descripcio, o.categoria, o.cp, o.imatge, o.estat AS object_estat,
                    u.username AS propietari
             FROM solicituds s
-            JOIN objects o   ON s.object_id     = o.id
-            LEFT JOIN users u ON o.user_id       = u.id
+            JOIN objects o ON s.object_id = o.id
+            LEFT JOIN users u ON o.user_id = u.id
             WHERE s.solicitant_id = ?
             ORDER BY s.created_at DESC
         `, [solicitant_id]);
@@ -131,7 +131,7 @@ export const SolicitudModel = {
                    o.id AS object_id, o.nom, o.categoria, o.cp,
                    u.username AS solicitant
             FROM solicituds s
-            JOIN objects o ON s.object_id     = o.id
+            JOIN objects o ON s.object_id = o.id
             JOIN users   u ON s.solicitant_id = u.id
             WHERE o.user_id = ?
             ORDER BY s.created_at DESC
