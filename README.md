@@ -4,6 +4,10 @@
 
 ---
 
+## Video de execució (clica la imatge)
+
+[![Demo del lloc web](https://img.youtube.com/vi/gpLvw4cojis/maxresdefault.jpg)](https://youtu.be/gpLvw4cojis)
+
 ## Descripció del projecte
 
 EcoCity Connect és una plataforma de préstec d'objectes entre veïns. La idea és senzilla: en lloc de comprar eines, estris o equipament d'ús esporàdic, els veïns d'un mateix barri poden publicar-los i deixar-los als altres a través d'un sistema de sol·licituds.
