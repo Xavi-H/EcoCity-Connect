@@ -75,13 +75,13 @@ document.addEventListener('change', e => {
  * @param {string} errorFieldId - ID del <p> d'errors del formulari (diferent a cada pàgina)
  */
 export function obrirModalEditar(obj, errorFieldId = 'edit-errors') {
-    document.getElementById('edit-id').value         = obj.id;
-    document.getElementById('edit-nom').value        = obj.nom;
+    document.getElementById('edit-id').value = obj.id;
+    document.getElementById('edit-nom').value = obj.nom;
     document.getElementById('edit-descripcio').value = obj.descripcio || '';
     omplirSelectCategoriaEdit(obj.categoria);
-    document.getElementById('edit-cp').value         = obj.cp;
-    document.getElementById('edit-estat').value      = obj.estat;
-    document.getElementById('edit-imatge').value     = obj.imatge || '';
+    document.getElementById('edit-cp').value = obj.cp;
+    document.getElementById('edit-estat').value = obj.estat;
+    document.getElementById('edit-imatge').value = obj.imatge || '';
     document.getElementById(errorFieldId).textContent = '';
     document.getElementById('modal-editar').style.display = 'flex';
 }

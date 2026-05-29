@@ -21,6 +21,7 @@
         <h2>Problema real que resolem: l'hiperconsumisme de proximitat</h2>
         <p>A qualsevol barri de Barcelona, milers de veïns posseeixen objectes d'ús esporàdic (taladres, tendes de campanya, màquines de cosir, projectors) que fan servir unes poques hores a l'any i que romanen inactius el 95% del temps. Alhora, els seus veïns compren exactament els mateixos objectes, generant un consum duplicat innecessari de matèries primeres, energia i residus.</p>
         <p>Aquesta és la contradicció central de l'economia lineal (<em>fabrica → usa → llença</em>) que EcoCity Connect vol trencar.</p>
+        <p>EcoCity Connect resol aquest problema a través de quatre funcionalitats concretes. Primer, qualsevol usuari registrat pot publicar un objecte que no usa omplint un formulari amb la categoria, el codi postal i l'estat: en aquell moment l'objecte entra al catàleg com a disponible per a tota la comunitat, sense cap transacció econòmica. Segon, el catàleg permet cercar i filtrar per categoria, estat i text lliure, de manera que un veí que necessita un taladre per un dia el troba en qüestió de segons sense haver de comprar-ne un de nou. Tercer, el sistema de sol·licituds permet que el veí interessat enviï un missatge al propietari, que pot acceptar o rebutjar el préstec: quan s'accepta, l'objecte canvia automàticament a estat prestat i desapareix del catàleg de disponibles, evitant sol·licituds dobles. Quart, quan el préstec acaba, el propietari torna a posar l'objecte com a disponible i el cicle recomença. Cada volta d'aquest cicle és una compra que no s'ha produït.</p>
     </section>
 
     <section>
@@ -88,12 +89,12 @@
 
         <article>
             <h3>Zero impressions de paper</h3>
-            <p>Tota la documentació del projecte (enunciats, apunts, diagrames, notes) s'ha gestionat en format digital. Els enunciats de la pràctica s'han llegit en PDF al navegador. No s'ha imprès cap document físic durant tot el cicle de vida del projecte.</p>
+            <p>Tota la documentació del projecte (enunciats...) s'ha gestionat en format digital. No s'ha imprès cap document físic durant tot el cicle de vida del projecte.</p>
         </article>
 
         <article>
             <h3>Base de dades SQLite: mínim consum de recursos</h3>
-            <p><strong>SQLite</strong> és un motor de base de dades sense servidor (serverless): no requereix un procés de BD corrent en segon pla consumint CPU i memòria constantment. Tot el motor és una única llibreria (.so) que s'activa només quan hi ha consultes. Per a un projecte de la mida d'EcoCity Connect, l'estalvi de recursos respecte a MySQL o PostgreSQL és significatiu.</p>
+            <p><strong>SQLite</strong> és un motor de base de dades sense servidor (serverless): no requereix un procés de BD corrent en segon pla consumint CPU i memòria constantment. Tot el motor és una única llibreria que s'activa només quan hi ha consultes. Per a un projecte de la mida d'EcoCity Connect, l'estalvi de recursos respecte a MySQL o PostgreSQL és significatiu.</p>
         </article>
 
         <article>
@@ -119,7 +120,7 @@
 
         <article>
             <h3>API asíncrona amb async/await</h3>
-            <p>Tot el servidor usa <strong>programació asíncrona</strong> (async/await) en comptes d'I/O bloquejant. Quan Node.js espera una consulta a la BD, no bloqueja el fil d'execució: pot atendre altres peticions simultàniament. Això permet servir moltes connexions concurrents amb un sol procés, sense consumir memòria per crear múltiples fils (threads).</p>
+            <p>Tot el servidor usa <strong>programació asíncrona</strong> (async/await). Quan Node.js espera una consulta a la BD, no bloqueja el fil d'execució: pot atendre altres peticions simultàniament. Això permet servir moltes connexions concurrents amb un sol procés, sense consumir memòria per crear múltiples fils (threads).</p>
         </article>
 
         <article>

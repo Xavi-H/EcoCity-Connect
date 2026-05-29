@@ -42,9 +42,9 @@ APP.post('/api/register', async (req, res) => {
         const existent = await UserModel.getByUsername(username);
         if (existent) return res.status(409).json({ error: 'Aquest nom d\'usuari ja existeix' });
         const user = await UserModel.create(username, password);
-        req.session.userId   = user.id;
+        req.session.userId = user.id;
         req.session.username = user.username;
-        req.session.isAdmin  = false;
+        req.session.isAdmin = false;
         res.status(201).json({ id: user.id, username: user.username, isAdmin: false });
     } catch (err) {
         console.error(err);
