@@ -19,7 +19,7 @@ const db = await open({
 
 // Iniciar las tablas automaticamente si no existen
 try {
-    const taulaExisteix = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='f'");
+    const taulaExisteix = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='users'");
     if (!taulaExisteix) {
         console.log("Configurant taules inicials des de db_init.sql...");
         const sqlInit = fs.readFileSync(dbInitPath, 'utf8');
